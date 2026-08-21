@@ -207,6 +207,9 @@
       <p id="formHint" class="mt-2 text-xs text-steel font-mono">↳ works with public links only · we never store the files you download</p>
     </form>
 
+    <!-- Error message box (hidden by default) -->
+    <div id="errorBox" class="hidden mt-4 bg-ember/10 border border-ember/60 text-ember rounded-xl px-4 py-3 text-sm font-medium" role="alert"></div>
+
     <!-- Signature equalizer strip -->
     <div id="equalizer" class="justify-center mt-8" aria-hidden="true"></div>
 
@@ -695,21 +698,19 @@
     return val.toFixed(i === 0 ? 0 : 1) + ' ' + units[i];
   }
 
-  // Render a clean error message inside the preview card container
+  // Error message box below the search bar
+  const errorBox = document.getElementById('errorBox');
+
+  // Show a red error message box below the search bar
   function showError(message) {
-    previewCard.innerHTML = `
-      <div class="flex flex-col items-center text-center py-10 px-4">
-        <span class="w-12 h-12 rounded-full bg-ember/15 flex items-center justify-center mb-4">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B4A" stroke-width="2" stroke-linecap="round">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 8v4m0 4h.01"/>
-          </svg>
-        </span>
-        <p class="text-white font-semibold text-base">${escapeHTML(message)}</p>
-        <p class="text-steel text-sm mt-2">Please double-check the link and try again.</p>
-      </div>`;
-    previewCard.classList.add('border-ember/60');
-    previewCard.querySelector('h2')?.remove();
+    errorBox.textContent = message;
+    errorBox.classList.remove('hidden');
+    previewCard.classList.add('hidden');
+  }
+
+  // Hide the error box
+  function hideError() {
+    errorBox.classList.add('hidden');
   }
 
   // Render the preview card with direct download info / options
@@ -835,14 +836,22 @@
 
   // Handle successful API response
   function handleResponse(json) {
+    // Log the full API response for debugging
+    console.log('Cobalt API response:', json);
+
     const status = getCobaltStatus(json);
 
     if (status === 'error' || (!json.url && !json.fileUrl && !json.picker)) {
-      const msg = json.error?.message || json.error || json.text || 'Could not process that link.';
-      showError(msg);
-      previewCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const code = json.error?.code || json.error?.message || json.error || json.text;
+      showError(code || 'Failed to process link. Please check the URL or API server status.');
       return;
     }
+
+    // Hide any previous error
+    hideError();
+
+    // Make the preview card visible
+    previewCard.classList.remove('hidden');
 
     if (status === 'picker' && json.picker) {
       const pickerData = json.picker
@@ -908,6 +917,8 @@
       return;
     }
 
+    // Hide any previous error and show loading state
+    hideError();
     setLoading(true);
     showPreviewLoading();
 
