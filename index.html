@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grabsy — Download YouTube, TikTok, Instagram, Facebook &amp; LinkedIn Videos Free</title>
+<meta name="description" content="Grabsy is a free universal media downloader. Save YouTube videos, TikTok clips without a watermark, Instagram Reels, Facebook videos and LinkedIn posts in MP4 (1080p/720p/480p) or MP3 — no app, no sign-up.">
+<meta name="keywords" content="video downloader, youtube downloader, tiktok downloader no watermark, instagram video downloader, facebook video downloader, linkedin video downloader, mp3 converter">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#101322">
+<!-- Replace with your production domain before launch -->
+<link rel="canonical" href="https://www.grabsy.app/">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23101322'/%3E%3Cpath d='M20 9v15m0 0-6-6m6 6 6-6' stroke='%232FDF84' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Crect x='11' y='29' width='18' height='3' rx='1.5' fill='%23FF6B4A'/%3E%3C/svg%3E">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Grabsy">
+<meta property="og:title" content="Grabsy — Universal Video &amp; Audio Downloader">
+<meta property="og:description" content="Paste a link from YouTube, TikTok, Instagram, Facebook or LinkedIn and grab the MP4 or MP3 in seconds. No watermark on TikTok saves.">
+<meta property="og:url" content="https://www.grabsy.app/">
+<!-- Replace with a real 1200x630 social preview image -->
+<meta property="og:image" content="https://www.grabsy.app/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Grabsy — Universal Video &amp; Audio Downloader">
+<meta name="twitter:description" content="Save video or audio from YouTube, TikTok, Instagram, Facebook and LinkedIn in one paste. Free, fast, no watermark.">
+<meta name="twitter:image" content="https://www.grabsy.app/og-image.jpg">
+
+<!-- Schema.org: WebApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Grabsy",
+  "url": "https://www.grabsy.app/",
+  "description": "Universal social media video and audio downloader supporting YouTube, TikTok, Instagram, Facebook and LinkedIn.",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Any (Web-based)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "YouTube video and MP3 download",
+    "TikTok download without watermark",
+    "Instagram Reels, Stories and post download",
+    "Facebook public video download",
+    "LinkedIn video post download"
+  ]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: '#101322',
+          inkpanel: '#181C30',
+          inkline: '#2A2F49',
+          paper: '#F3F4EE',
+          paperpanel: '#FFFFFF',
+          paperline: '#DEE0D6',
+          signal: '#2FDF84',
+          ember: '#FF6B4A',
+          steel: '#9298B0',
+          steeldark: '#575E77'
+        },
+        fontFamily: {
+          display: ['"Space Grotesk"', 'sans-serif'],
+          body: ['Inter', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'monospace']
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; }
+
+  /* Equalizer signature strip */
+  #equalizer { display: flex; align-items: flex-end; gap: 3px; height: 28px; }
+  .eq-bar {
+    width: 3px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #2FDF84 0%, #1AAE63 100%);
+    transform-origin: bottom;
+    animation: eqPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes eqPulse {
+    0%, 100% { transform: scaleY(0.25); }
+    50% { transform: scaleY(1); }
+  }
+
+  /* Divider tick rule reused between sections, echoes the equalizer motif */
+  .tick-rule {
+    background-image: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 10px);
+    height: 1px;
+    opacity: 0.35;
+  }
+
+  details.faq-item summary::-webkit-details-marker { display: none; }
+  details.faq-item[open] .faq-chevron { transform: rotate(180deg); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .eq-bar { animation: none !important; }
+    html { scroll-behavior: auto; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+
+<body class="bg-paper text-ink font-body antialiased">
+
+<!-- Skip link -->
+<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-signal focus:text-ink focus:px-4 focus:py-2 focus:rounded-md focus:font-semibold">Skip to content</a>
+
+<!-- ============ HEADER / NAVBAR ============ -->
+<header class="sticky top-0 z-40 bg-ink/95 backdrop-blur border-b border-inkline">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-2.5 group" aria-label="Grabsy home">
+      <span class="w-9 h-9 rounded-xl bg-inkpanel border border-inkline flex items-center justify-center">
+        <svg width="18" height="18" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 9v15m0 0-6-6m6 6 6-6" stroke="#2FDF84" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="11" y="29" width="18" height="3" rx="1.5" fill="#FF6B4A"/>
+        </svg>
+      </span>
+      <span class="font-display font-semibold text-lg tracking-tight text-white">Grabsy</span>
+    </a>
+
+    <nav aria-label="Primary" class="hidden md:flex items-center gap-8">
+      <a href="#top" class="text-sm text-steel hover:text-white transition-colors">Home</a>
+      <a href="#how-it-works" class="text-sm text-steel hover:text-white transition-colors">How it works</a>
+      <a href="#platforms" class="text-sm text-steel hover:text-white transition-colors">Platforms</a>
+      <a href="#faq" class="text-sm text-steel hover:text-white transition-colors">FAQ</a>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-steel border border-inkline rounded-full px-3 py-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-signal"></span> No sign-up needed
+      </span>
+      <button id="menuBtn" aria-expanded="false" aria-controls="mobileMenu" class="md:hidden w-10 h-10 rounded-lg border border-inkline flex items-center justify-center text-white focus-visible:ring-2 focus-visible:ring-signal">
+        <svg id="menuIconOpen" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg id="menuIconClose" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobileMenu" aria-label="Mobile" class="hidden md:hidden border-t border-inkline bg-ink px-5 py-4 flex flex-col gap-4">
+    <a href="#top" class="text-sm text-steel hover:text-white">Home</a>
+    <a href="#how-it-works" class="text-sm text-steel hover:text-white">How it works</a>
+    <a href="#platforms" class="text-sm text-steel hover:text-white">Platforms</a>
+    <a href="#faq" class="text-sm text-steel hover:text-white">FAQ</a>
+  </nav>
+</header>
+
+<main id="main">
+
+<!-- ============ HERO / SEARCH SECTION ============ -->
+<section id="top" class="bg-ink text-white">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 pt-16 sm:pt-24 pb-14 text-center">
+
+    <span class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-signal border border-signal/30 bg-signal/5 rounded-full px-3 py-1 mb-6">
+      Universal Media Downloader
+    </span>
+
+    <h1 class="font-display font-semibold text-4xl sm:text-5xl md:text-6xl leading-[1.05] tracking-tight">
+      Save any video or song.<br class="hidden sm:block">
+      <span class="text-signal">Any platform.</span> In seconds.
+    </h1>
+
+    <p class="mt-5 text-steel text-base sm:text-lg max-w-2xl mx-auto">
+      Paste a link from YouTube, TikTok, Instagram, Facebook or LinkedIn. Grabsy fetches every available quality — including TikTok clips with the watermark removed.
+    </p>
+
+    <!-- Search bar -->
+    <form id="downloadForm" class="mt-9 text-left" novalidate>
+      <label for="mediaUrl" class="sr-only">Paste a video or audio link</label>
+      <div class="flex flex-col sm:flex-row gap-2.5 bg-inkpanel border border-inkline rounded-2xl p-2.5">
+        <div class="flex-1 flex items-center gap-2 px-3">
+          <svg class="shrink-0 text-steel" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 1 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 1 0 7.07 7.07L12.5 19.5"/></svg>
+          <input id="mediaUrl" type="url" required placeholder="Paste a YouTube, TikTok, Instagram, Facebook or LinkedIn link…"
+            class="w-full bg-transparent py-3 text-sm sm:text-base text-white placeholder:text-steel focus:outline-none">
+        </div>
+        <div class="flex gap-2.5">
+          <button type="button" id="pasteBtn" class="shrink-0 inline-flex items-center gap-1.5 px-4 py-3 rounded-xl border border-inkline text-sm font-medium text-white hover:border-steel transition-colors focus-visible:ring-2 focus-visible:ring-signal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/></svg>
+            Paste
+          </button>
+          <button type="submit" class="shrink-0 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-signal text-ink font-display font-semibold text-sm hover:bg-white transition-colors focus-visible:ring-2 focus-visible:ring-white">
+            Grab it
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14m0 0-6-6m6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+      <p id="formHint" class="mt-2 text-xs text-steel font-mono">↳ works with public links only · we never store the files you download</p>
+    </form>
+
+    <!-- Signature equalizer strip -->
+    <div id="equalizer" class="justify-center mt-8" aria-hidden="true"></div>
+
+    <!-- Ad Slot #1 -->
+    <div class="mt-8 border border-dashed border-inkline rounded-xl h-[90px] flex items-center justify-center text-steel text-xs font-mono tracking-wide">
+      AD SLOT · 970×90 LEADERBOARD
+    </div>
+
+    <!-- Platform badges -->
+    <ul class="mt-8 flex flex-wrap items-center justify-center gap-2.5" aria-label="Supported platforms">
+      <li class="inline-flex items-center gap-1.5 text-xs font-medium text-steel border border-inkline rounded-full px-3 py-1.5">
+        <span class="w-2 h-2 rounded-full bg-[#FF0000]"></span> YouTube
+      </li>
+      <li class="inline-flex items-center gap-1.5 text-xs font-medium text-steel border border-inkline rounded-full px-3 py-1.5">
+        <span class="w-2 h-2 rounded-full bg-[#25F4EE]"></span> TikTok <span class="text-signal">· No Watermark</span>
+      </li>
+      <li class="inline-flex items-center gap-1.5 text-xs font-medium text-steel border border-inkline rounded-full px-3 py-1.5">
+        <span class="w-2 h-2 rounded-full" style="background:conic-gradient(from 180deg,#f9ce34,#ee2a7b,#6228d7)"></span> Instagram
+      </li>
+      <li class="inline-flex items-center gap-1.5 text-xs font-medium text-steel border border-inkline rounded-full px-3 py-1.5">
+        <span class="w-2 h-2 rounded-full bg-[#1877F2]"></span> Facebook
+      </li>
+      <li class="inline-flex items-center gap-1.5 text-xs font-medium text-steel border border-inkline rounded-full px-3 py-1.5">
+        <span class="w-2 h-2 rounded-full bg-[#0A66C2]"></span> LinkedIn
+      </li>
+    </ul>
+  </div>
+
+  <!-- ============ DYNAMIC RESULT CONTAINER (design state) ============ -->
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 pb-20">
+    <div id="previewCard" class="relative bg-inkpanel border border-inkline rounded-2xl p-5 sm:p-6 transition-opacity">
+      <span class="absolute -top-3 left-5 bg-ember text-ink text-[11px] font-mono font-semibold uppercase tracking-wide rounded-full px-2.5 py-1">Preview · demo state</span>
+
+      <h2 class="sr-only">Download preview</h2>
+
+      <div class="flex flex-col sm:flex-row gap-5">
+        <!-- Thumbnail -->
+        <div class="relative shrink-0 w-full sm:w-52 aspect-video rounded-xl overflow-hidden bg-ink border border-inkline flex items-center justify-center">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="text-steel"><circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="1.5"/><path d="M10 8.5v7l6-3.5-6-3.5z" fill="currentColor"/></svg>
+          <span class="absolute bottom-2 right-2 bg-ink/80 text-white text-xs font-mono px-1.5 py-0.5 rounded">04:12</span>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <h3 class="font-display font-semibold text-lg text-white truncate">Sample video title goes here — replace with fetched metadata</h3>
+          <p class="text-sm text-steel mt-1 font-mono">Source: youtube.com · Duration 04:12 · Uploaded by Channel Name</p>
+
+          <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <button type="button" class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal">
+              <span class="text-sm font-semibold text-white font-mono">1080p</span>
+              <span class="text-[11px] text-steel font-mono">MP4 · ~64 MB</span>
+            </button>
+            <button type="button" class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal">
+              <span class="text-sm font-semibold text-white font-mono">720p</span>
+              <span class="text-[11px] text-steel font-mono">MP4 · ~38 MB</span>
+            </button>
+            <button type="button" class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal">
+              <span class="text-sm font-semibold text-white font-mono">480p</span>
+              <span class="text-[11px] text-steel font-mono">MP4 · ~21 MB</span>
+            </button>
+            <button type="button" class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-ember bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-ember">
+              <span class="text-sm font-semibold text-white font-mono">MP3</span>
+              <span class="text-[11px] text-steel font-mono">Audio · ~5 MB</span>
+            </button>
+          </div>
+          <p class="mt-3 text-xs text-steel">Formats shown for illustration — actual resolutions and sizes depend on the source link.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Ad Slot #2 -->
+<section class="bg-paper">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 py-8">
+    <div class="border border-dashed border-paperline rounded-xl h-[90px] flex items-center justify-center text-steeldark text-xs font-mono tracking-wide">
+      AD SLOT · 728×90 BANNER
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section id="how-it-works" class="bg-paper">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+    <div class="max-w-2xl">
+      <span class="text-xs font-mono uppercase tracking-widest text-steeldark">Step by step</span>
+      <h2 class="font-display font-semibold text-3xl sm:text-4xl mt-2 tracking-tight">How to download in three steps</h2>
+      <p class="mt-3 text-steeldark">The same flow works for every supported platform, whether you want the full video or just the audio track.</p>
+    </div>
+
+    <div class="mt-10 grid sm:grid-cols-3 gap-6">
+      <div class="bg-paperpanel border border-paperline rounded-2xl p-6">
+        <span class="font-mono text-sm text-signal border border-signal/30 bg-signal/10 rounded-full px-2.5 py-1">Step 01</span>
+        <h3 class="font-display font-semibold text-lg mt-4">Copy the link</h3>
+        <p class="text-sm text-steeldark mt-2">Open the video or post on YouTube, TikTok, Instagram, Facebook or LinkedIn and copy its share link.</p>
+      </div>
+      <div class="bg-paperpanel border border-paperline rounded-2xl p-6">
+        <span class="font-mono text-sm text-signal border border-signal/30 bg-signal/10 rounded-full px-2.5 py-1">Step 02</span>
+        <h3 class="font-display font-semibold text-lg mt-4">Paste and grab</h3>
+        <p class="text-sm text-steeldark mt-2">Paste it into the box above and press Grab it. Grabsy reads the link and lists every quality available.</p>
+      </div>
+      <div class="bg-paperpanel border border-paperline rounded-2xl p-6">
+        <span class="font-mono text-sm text-signal border border-signal/30 bg-signal/10 rounded-full px-2.5 py-1">Step 03</span>
+        <h3 class="font-display font-semibold text-lg mt-4">Choose a format</h3>
+        <p class="text-sm text-steeldark mt-2">Pick 1080p, 720p, 480p or MP3 audio, and the file saves straight to your device.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="tick-rule text-steeldark max-w-6xl mx-auto"></div>
+
+<!-- ============ PLATFORM FEATURES ============ -->
+<section id="platforms" class="bg-paper">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+    <div class="max-w-2xl">
+      <span class="text-xs font-mono uppercase tracking-widest text-steeldark">Supported platforms</span>
+      <h2 class="font-display font-semibold text-3xl sm:text-4xl mt-2 tracking-tight">Built for every platform you watch on</h2>
+    </div>
+
+    <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <article class="bg-paperpanel border border-paperline rounded-2xl p-6">
+        <span class="w-9 h-9 rounded-lg bg-[#FF0000]/10 flex items-center justify-center text-[#FF0000] font-display font-bold">YT</span>
+        <h3 class="font-display font-semibold text-lg mt-4">YouTube</h3>
+        <p class="text-sm text-steeldark mt-2">Videos, Shorts and full playlists, up to 1080p, plus direct MP3 extraction for music and podcasts.</p>
+      </article>
+      <article class="bg-paperpanel border border-paperline rounded-2xl p-6">
+        <span class="w-9 h-9 rounded-lg bg-ink/10 flex items-center justify-center text-ink font-display font-bold">TT</span>
+        <h3 class="font-display font-semibold text-lg mt-4">TikTok <span class="text-signal text-sm font-body font-normal">· no watermark</span></h3>
+        <p class="text-sm text-steeldark mt-2">Save clips exactly as filmed, with the on-video username sticker removed automatically.</p>
+      </article>
+      <article class="bg-paperpanel border border-paperline rounded-2xl p-6">
+        <span class="w-9 h-9 rounded-lg flex items-center justify-center text-white font-display font-bold" style="background:conic-gradient(from 180deg,#f9ce34,#ee2a7b,#6228d7)">IG</span>
+        <h3 class="font-display font-semibold text-lg mt-4">Instagram</h3>
+        <p class="text-sm text-steeldark mt-2">Reels, Stories and feed posts, including carousels with more than one video.</p>
+      </article>
+      <article class="bg-paperpanel border border-paperline rounded-2xl p-6">
+        <span class="w-9 h-9 rounded-lg bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2] font-display font-bold">FB</span>
+        <h3 class="font-display font-semibold text-lg mt-4">Facebook</h3>
+        <p class="text-sm text-steeldark mt-2">Public videos and Reels shared from pages, groups or personal profiles in HD.</p>
+      </article>
+      <article class="bg-paperpanel border border-paperline rounded-2xl p-6">
+        <span class="w-9 h-9 rounded-lg bg-[#0A66C2]/10 flex items-center justify-center text-[#0A66C2] font-display font-bold">IN</span>
+        <h3 class="font-display font-semibold text-lg mt-4">LinkedIn</h3>
+        <p class="text-sm text-steeldark mt-2">Native video posts and document-style clips shared publicly by people or company pages.</p>
+      </article>
+      <article class="bg-inkpanel border border-inkline rounded-2xl p-6 flex flex-col justify-center">
+        <h3 class="font-display font-semibold text-lg text-white">Only download what you're allowed to</h3>
+        <p class="text-sm text-steel mt-2">Please only save content you own, have permission to use, or that's shared under a license allowing downloads. See our DMCA notice below.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="tick-rule text-steeldark max-w-6xl mx-auto"></div>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" class="bg-paper">
+  <div class="max-w-3xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+    <span class="text-xs font-mono uppercase tracking-widest text-steeldark">Questions</span>
+    <h2 class="font-display font-semibold text-3xl sm:text-4xl mt-2 tracking-tight">Frequently asked questions</h2>
+
+    <div class="mt-8 divide-y divide-paperline border-t border-b border-paperline">
+      <details class="faq-item group py-5">
+        <summary class="flex items-center justify-between cursor-pointer list-none">
+          <h3 class="font-display font-medium text-base sm:text-lg pr-4">Is Grabsy free to use?</h3>
+          <svg class="faq-chevron shrink-0 transition-transform" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <p class="text-sm text-steeldark mt-3 pr-6">Yes. Pasting a link and downloading a video or MP3 doesn't require an account, a subscription or an app install.</p>
+      </details>
+
+      <details class="faq-item group py-5">
+        <summary class="flex items-center justify-between cursor-pointer list-none">
+          <h3 class="font-display font-medium text-base sm:text-lg pr-4">Is it legal to download videos this way?</h3>
+          <svg class="faq-chevron shrink-0 transition-transform" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <p class="text-sm text-steeldark mt-3 pr-6">Downloading is intended for content you own, have explicit permission to save, or that's shared under a license permitting downloads. You're responsible for how you use downloaded files and for following each platform's terms.</p>
+      </details>
+
+      <details class="faq-item group py-5">
+        <summary class="flex items-center justify-between cursor-pointer list-none">
+          <h3 class="font-display font-medium text-base sm:text-lg pr-4">Why does TikTok save without a watermark?</h3>
+          <svg class="faq-chevron shrink-0 transition-transform" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <p class="text-sm text-steeldark mt-3 pr-6">Grabsy fetches the original render of the clip rather than the shared re-encode, so the on-screen username sticker used for shared links never gets baked in.</p>
+      </details>
+
+      <details class="faq-item group py-5">
+        <summary class="flex items-center justify-between cursor-pointer list-none">
+          <h3 class="font-display font-medium text-base sm:text-lg pr-4">Does it work on my phone?</h3>
+          <svg class="faq-chevron shrink-0 transition-transform" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <p class="text-sm text-steeldark mt-3 pr-6">Yes. The page is fully responsive and works in any modern mobile browser on iOS or Android, no app required.</p>
+      </details>
+
+      <details class="faq-item group py-5">
+        <summary class="flex items-center justify-between cursor-pointer list-none">
+          <h3 class="font-display font-medium text-base sm:text-lg pr-4">Which audio format do I get from MP3 downloads?</h3>
+          <svg class="faq-chevron shrink-0 transition-transform" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <p class="text-sm text-steeldark mt-3 pr-6">Audio-only downloads are delivered as standard MP3 files, so they play on virtually any device or media player.</p>
+      </details>
+
+      <details class="faq-item group py-5">
+        <summary class="flex items-center justify-between cursor-pointer list-none">
+          <h3 class="font-display font-medium text-base sm:text-lg pr-4">Is there a daily download limit?</h3>
+          <svg class="faq-chevron shrink-0 transition-transform" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <p class="text-sm text-steeldark mt-3 pr-6">Reasonable personal use is unrestricted. Automated or bulk scraping is not permitted — see our Terms of Service for details.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="bg-ink text-steel">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-14">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div>
+        <a href="#top" class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-inkpanel border border-inkline flex items-center justify-center">
+            <svg width="15" height="15" viewBox="0 0 40 40" fill="none"><path d="M20 9v15m0 0-6-6m6 6 6-6" stroke="#2FDF84" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="11" y="29" width="18" height="3" rx="1.5" fill="#FF6B4A"/></svg>
+          </span>
+          <span class="font-display font-semibold text-white">Grabsy</span>
+        </a>
+        <p class="text-sm mt-4 max-w-xs">A free universal downloader for YouTube, TikTok, Instagram, Facebook and LinkedIn video and audio.</p>
+      </div>
+
+      <div>
+        <h3 class="text-white font-display font-medium text-sm uppercase tracking-wide">Product</h3>
+        <ul class="mt-4 space-y-2.5 text-sm">
+          <li><a href="#top" class="hover:text-white transition-colors">Downloader</a></li>
+          <li><a href="#how-it-works" class="hover:text-white transition-colors">How it works</a></li>
+          <li><a href="#platforms" class="hover:text-white transition-colors">Platforms</a></li>
+          <li><a href="#faq" class="hover:text-white transition-colors">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-white font-display font-medium text-sm uppercase tracking-wide">Legal</h3>
+        <ul class="mt-4 space-y-2.5 text-sm">
+          <li><a href="#" data-modal="dmca" class="hover:text-white transition-colors">DMCA disclaimer</a></li>
+          <li><a href="#" data-modal="terms" class="hover:text-white transition-colors">Terms of service</a></li>
+          <li><a href="#" data-modal="privacy" class="hover:text-white transition-colors">Privacy policy</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-white font-display font-medium text-sm uppercase tracking-wide">Contact</h3>
+        <ul class="mt-4 space-y-2.5 text-sm">
+          <li><a href="mailto:support@grabsy.app" class="hover:text-white transition-colors">support@grabsy.app</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 pt-6 border-t border-inkline text-xs leading-relaxed">
+      <p><strong class="text-steel">DMCA disclaimer:</strong> Grabsy does not host, store or distribute any video or audio files. This site only helps users fetch and save publicly available media that they have the right to access. All trademarks, logos and content remain the property of their respective owners. If you believe content accessed through this tool infringes your copyright, contact us at the address above and we will respond promptly.</p>
+      <p class="mt-4">© <span id="year"></span> Grabsy. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ LEGAL MODAL OVERLAY ============ -->
+<div id="legalModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle">
+  <!-- Backdrop -->
+  <div id="legalModalBackdrop" class="absolute inset-0 bg-ink/80 backdrop-blur-sm"></div>
+
+  <!-- Modal panel -->
+  <div class="relative w-full max-w-2xl max-h-[85vh] flex flex-col bg-inkpanel border border-inkline rounded-2xl shadow-2xl overflow-hidden">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-inkline bg-ink">
+      <h2 id="legalModalTitle" class="font-display font-semibold text-lg text-white">Legal</h2>
+      <button id="legalModalClose" type="button" aria-label="Close modal"
+        class="w-9 h-9 rounded-lg border border-inkline flex items-center justify-center text-steel hover:text-white hover:border-steel transition-colors focus-visible:ring-2 focus-visible:ring-signal">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <!-- Scrollable content -->
+    <div id="legalModalContent" class="flex-1 overflow-y-auto px-6 py-5 text-sm text-steel leading-relaxed space-y-4">
+      <!-- Content injected dynamically by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+  // Footer year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ============ LEGAL MODAL ============
+  const legalModal = document.getElementById('legalModal');
+  const legalModalTitle = document.getElementById('legalModalTitle');
+  const legalModalContent = document.getElementById('legalModalContent');
+  const legalModalClose = document.getElementById('legalModalClose');
+  const legalModalBackdrop = document.getElementById('legalModalBackdrop');
+
+  // Pre-written legal content for each page
+  const legalContent = {
+    dmca: {
+      title: 'DMCA Disclaimer',
+      body: `
+        <h3 class="text-white font-display font-semibold text-base mb-2">1. No Hosting of Content</h3>
+        <p>Grabsy does not host, store, upload, or distribute any video, audio, or other media files. This website is a tool that helps users fetch and save publicly available media that they have the right to access. All media remains on the original platform's servers.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">2. User Responsibility</h3>
+        <p>Users are solely responsible for the content they choose to download. By using Grabsy, you agree that you will only download content that you own, have explicit permission to use, or that is shared under a license permitting downloads. You are responsible for complying with the terms of service of each platform and with all applicable laws.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">3. Copyright Infringement Claims</h3>
+        <p>If you believe that content accessed through this tool infringes your copyright, please contact us at <a href="mailto:support@grabsy.app" class="text-signal hover:underline">support@grabsy.app</a> with the following information:</p>
+        <ul class="list-disc pl-5 mt-2 space-y-1">
+          <li>Identification of the copyrighted work claimed to be infringed</li>
+          <li>Identification of the material that is claimed to be infringing</li>
+          <li>Your contact information (name, email, address)</li>
+          <li>A statement that you have a good faith belief the use is not authorized</li>
+          <li>A statement, under penalty of perjury, that the information is accurate</li>
+        </ul>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">4. Trademarks</h3>
+        <p>All trademarks, logos, and brand names mentioned on this site (YouTube, TikTok, Instagram, Facebook, LinkedIn) are the property of their respective owners. Grabsy is not affiliated with, endorsed by, or sponsored by any of these platforms.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">5. Response Time</h3>
+        <p>We will respond to valid copyright infringement notices promptly. Please allow up to 48 hours for a response.</p>
+      `
+    },
+    terms: {
+      title: 'Terms of Service',
+      body: `
+        <h3 class="text-white font-display font-semibold text-base mb-2">1. Acceptance of Terms</h3>
+        <p>By accessing or using Grabsy, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, please do not use the service.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">2. Description of Service</h3>
+        <p>Grabsy provides a web-based tool that allows users to fetch and download publicly available media from supported platforms. The service is provided free of charge for personal, non-commercial use.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">3. Acceptable Use</h3>
+        <p>You agree not to use Grabsy to:</p>
+        <ul class="list-disc pl-5 mt-2 space-y-1">
+          <li>Download content you do not have the right to access or save</li>
+          <li>Engage in automated or bulk scraping of the service</li>
+          <li>Attempt to disrupt, overload, or compromise the service</li>
+          <li>Use the service for any unlawful purpose</li>
+          <li>Circumvent any technical measures or access controls</li>
+        </ul>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">4. Intellectual Property</h3>
+        <p>Grabsy does not claim ownership of any media downloaded through the service. All content remains the property of its respective owners. The Grabsy name, logo, and website design are the property of Grabsy.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">5. Disclaimer of Warranties</h3>
+        <p>The service is provided "as is" and "as available" without warranties of any kind, either express or implied. We do not guarantee that the service will be uninterrupted, error-free, or that results will be accurate or reliable.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">6. Limitation of Liability</h3>
+        <p>To the maximum extent permitted by law, Grabsy shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the service.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">7. Changes to Terms</h3>
+        <p>We reserve the right to modify these terms at any time. Continued use of the service after changes constitutes acceptance of the revised terms.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">8. Contact</h3>
+        <p>For questions about these terms, contact us at <a href="mailto:support@grabsy.app" class="text-signal hover:underline">support@grabsy.app</a>.</p>
+      `
+    },
+    privacy: {
+      title: 'Privacy Policy',
+      body: `
+        <h3 class="text-white font-display font-semibold text-base mb-2">1. Information We Collect</h3>
+        <p>Grabsy is designed to be privacy-friendly. We do not require an account, and we do not collect personal information such as your name, email address, or phone number.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">2. URLs You Submit</h3>
+        <p>When you paste a link into the downloader, the URL is sent to our processing service solely for the purpose of fetching the requested media. We do not store the URLs you submit, and we do not retain the files you download.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">3. Cookies and Analytics</h3>
+        <p>We may use basic cookies and analytics tools to understand how the site is used and to improve our service. These tools do not collect personally identifiable information.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">4. Third-Party Services</h3>
+        <p>Our service may rely on third-party infrastructure (such as hosting providers) to operate. These providers may process data in accordance with their own privacy policies.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">5. Data Security</h3>
+        <p>We take reasonable measures to protect the data processed through our service. However, no method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">6. Children's Privacy</h3>
+        <p>Our service is not directed to children under the age of 13. We do not knowingly collect personal information from children.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">7. Changes to This Policy</h3>
+        <p>We may update this privacy policy from time to time. Any changes will be posted on this page with an updated revision date.</p>
+
+        <h3 class="text-white font-display font-semibold text-base mb-2 mt-4">8. Contact</h3>
+        <p>If you have questions about this privacy policy, contact us at <a href="mailto:support@grabsy.app" class="text-signal hover:underline">support@grabsy.app</a>.</p>
+      `
+    }
+  };
+
+  function openLegalModal(key) {
+    const data = legalContent[key];
+    if (!data) return;
+    legalModalTitle.textContent = data.title;
+    legalModalContent.innerHTML = data.body;
+    legalModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLegalModal() {
+    legalModal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  // Open modal when a legal footer link is clicked
+  document.querySelectorAll('[data-modal]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      openLegalModal(link.dataset.modal);
+    });
+  });
+
+  // Close via X button
+  legalModalClose.addEventListener('click', closeLegalModal);
+
+  // Close via backdrop click
+  legalModalBackdrop.addEventListener('click', closeLegalModal);
+
+  // Close via Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !legalModal.classList.contains('hidden')) {
+      closeLegalModal();
+    }
+  });
+
+  // Mobile menu toggle
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const iconOpen = document.getElementById('menuIconOpen');
+  const iconClose = document.getElementById('menuIconClose');
+  menuBtn.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.toggle('hidden') === false;
+    menuBtn.setAttribute('aria-expanded', String(isOpen));
+    iconOpen.classList.toggle('hidden', isOpen);
+    iconClose.classList.toggle('hidden', !isOpen);
+  });
+  mobileMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      iconOpen.classList.remove('hidden');
+      iconClose.classList.add('hidden');
+    });
+  });
+
+  // Auto-paste from clipboard
+  document.getElementById('pasteBtn').addEventListener('click', async () => {
+    const input = document.getElementById('mediaUrl');
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) { input.value = text.trim(); input.focus(); }
+    } catch (err) {
+      input.focus();
+      alert('Clipboard access was blocked by your browser. Press Ctrl+V (or Cmd+V) inside the field to paste instead.');
+    }
+  });
+
+  // Cobalt API integration
+  const COBALT_API = 'https://cobalt-production-1779.up.railway.app/';
+  const form = document.getElementById('downloadForm');
+  const previewCard = document.getElementById('previewCard');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const submitBtnOriginalHTML = submitBtn.innerHTML;
+
+  // Helper: escape HTML to avoid breaking layout with untrusted API text
+  // Using unicode escapes prevents the HTML formatter from unescaping entities
+  function escapeHTML(str) {
+    return String(str)
+      .replace(/&/g, '\u0026amp;')
+      .replace(/</g, '\u0026lt;')
+      .replace(/>/g, '\u0026gt;')
+      .replace(/"/g, '\u0026quot;')
+      .replace(/'/g, '\u0026#39;');
+  }
+
+  // Helper: format bytes into human readable string
+  function formatBytes(bytes) {
+    if (!bytes && bytes !== 0) return '';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let i = 0;
+    let val = bytes;
+    while (val >= 1024 && i < units.length - 1) {
+      val /= 1024;
+      i++;
+    }
+    return val.toFixed(i === 0 ? 0 : 1) + ' ' + units[i];
+  }
+
+  // Render a clean error message inside the preview card container
+  function showError(message) {
+    previewCard.innerHTML = `
+      <div class="flex flex-col items-center text-center py-10 px-4">
+        <span class="w-12 h-12 rounded-full bg-ember/15 flex items-center justify-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B4A" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4m0 4h.01"/>
+          </svg>
+        </span>
+        <p class="text-white font-semibold text-base">${escapeHTML(message)}</p>
+        <p class="text-steel text-sm mt-2">Please double-check the link and try again.</p>
+      </div>`;
+    previewCard.classList.add('border-ember/60');
+    previewCard.querySelector('h2')?.remove();
+  }
+
+  // Render the preview card with direct download info / options
+  function renderPreview(item) {
+    const thumb = item.thumb || '';
+    const title = item.title || 'Download your media';
+    const duration = item.duration ? formatDuration(item.duration) : '';
+    const source = item.source ? new URL(item.source).hostname.replace('www.', '') : 'source';
+
+    const metaBits = [
+      source,
+      duration && `Duration ${duration}`,
+      item.uploader && `Uploaded by ${escapeHTML(item.uploader)}`
+    ].filter(Boolean).join(' · ');
+
+    const hasFile = !!item.url || !!item.singleUrl;
+
+    previewCard.innerHTML = `
+      <span class="absolute -top-3 left-5 bg-signal text-ink text-[11px] font-mono font-semibold uppercase tracking-wide rounded-full px-2.5 py-1">Ready to download</span>
+
+      <div class="flex flex-col sm:flex-row gap-5">
+        <div class="relative shrink-0 w-full sm:w-52 aspect-video rounded-xl overflow-hidden bg-ink border border-inkline flex items-center justify-center">
+          ${thumb
+            ? `<img src="${escapeHTML(thumb)}" alt="Video thumbnail" class="absolute inset-0 w-full h-full object-cover">`
+            : `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="text-steel"><circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="1.5"/><path d="M10 8.5v7l6-3.5-6-3.5z" fill="currentColor"/></svg>`}
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <h3 class="font-display font-semibold text-lg text-white truncate">${escapeHTML(title)}</h3>
+          <p class="text-sm text-steel mt-1 font-mono">${escapeHTML(metaBits)}</p>
+
+          <div id="downloadOptions" class="mt-4 grid grid-cols-2 sm:grid-cols-${hasFile ? 3 : 4} gap-2.5">
+            ${hasFile
+              ? `
+                <a href="${escapeHTML(item.url || item.fileUrl)}" download target="_blank" rel="noopener"
+                   class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal group">
+                  <span class="text-sm font-semibold text-white font-mono">Download</span>
+                  <span class="text-[11px] text-steel font-mono">Direct link</span>
+                </a>
+                <a href="${escapeHTML(item.url || item.fileUrl)}" download target="_blank" rel="noopener"
+                   class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-ember bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-ember group">
+                  <span class="text-sm font-semibold text-white font-mono">Audio</span>
+                  <span class="text-[11px] text-steel font-mono">MP3</span>
+                </a>`
+              : ''
+            }
+          </div>
+          <p class="mt-3 text-xs text-steel">${hasFile ? 'Click Download to save directly to your device.' : 'Choose a format below to start your download.'}</p>
+        </div>
+      </div>`;
+  }
+
+  function formatDuration(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  // Render download options dynamically for picker status
+  function renderPicker(pickerData, metadata, thumb, title) {
+    const optionsArea = document.getElementById('downloadOptions');
+    if (!optionsArea) {
+      renderPreview({ url: pickerData[0] && pickerData[0].url, thumb, title });
+      return;
+    }
+
+    optionsArea.innerHTML = pickerData.map((opt, index) => {
+      // Cobalt picker items often have .url, .qual (quality), .type / .ext variants
+      const url = opt.url;
+      const qualityLabel = opt.quality || opt.qual || opt.label || (opt.type === 'audio' ? 'MP3' : 'Video');
+      const ext = opt.ext || (opt.type === 'audio' ? 'mp3' : 'mp4');
+
+      return `
+        <a href="${escapeHTML(url)}" download target="_blank" rel="noopener"
+           class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal group">
+          <span class="text-sm font-semibold text-white font-mono">${escapeHTML(qualityLabel)}</span>
+          <span class="text-[11px] text-steel font-mono">${escapeHTML(String(ext).toUpperCase())}</span>
+        </a>`;
+    }).join('');
+
+    // Update the hint text under the options
+    const hint = optionsArea.nextElementSibling;
+    if (hint && hint.tagName === 'P') {
+      hint.textContent = 'Choose a format below to start your download.';
+    }
+  }
+
+  // Show loading spinner on the submit button
+  function setLoading(isLoading) {
+    if (isLoading) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <svg class="animate-spin -ml-1" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 3a9 9 0 1 0 9 9" stroke="currentColor"/>
+        </svg>
+        Fetching…`;
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = submitBtnOriginalHTML;
+    }
+  }
+
+  // Also show a page-level loading state on the preview card
+  function setPreviewLoading() {
+    previewCard.innerHTML = `
+      <span class="absolute -top-3 left-5 bg-signal text-ink text-[11px] font-mono font-semibold uppercase tracking-wide rounded-full px-2.5 py-1">Preview · loading</span>
+      <div class="flex flex-col items-center justify-center py-10">
+        <div class="w-10 h-10 border-2 border-signal border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-steel text-sm font-mono">Fetching media info…</p>
+      </div>`;
+    previewCard.classList.remove('border-ember/60');
+  }
+
+  // Normalize Cobalt status to internal type
+  function getCobaltStatus(json) {
+    const status = (json.status || '').toLowerCase();
+    if (['redirect', 'success', 'done'].includes(status)) return 'redirect';
+    if (['tunnel', 'stream', 'tunnel/stream'].includes(status)) return 'tunnel';
+    if (status === 'picker' || json.picker) return 'picker';
+    if (['error', 'rate-limit', 'unsupported', 'not-found'].includes(status)) return 'error';
+    return 'redirect';
+  }
+
+  // Handle successful API response
+  function handleResponse(json) {
+    const status = getCobaltStatus(json);
+
+    if (status === 'error' || (!json.url && !json.fileUrl && !json.picker)) {
+      const msg = json.error?.message || json.error || json.text || 'Could not process that link.';
+      showError(msg);
+      previewCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    if (status === 'picker' && json.picker) {
+      const pickerData = json.picker
+        .filter(opt => opt && (opt.url || opt.fileUrl))
+        .map(opt => ({
+          url: opt.url || opt.fileUrl,
+          quality: opt.quality || opt.qual || (opt.type === 'TV' ? 'TV' : opt.type),
+          ext: opt.ext || (opt.type === 'audio' ? 'mp3' : 'mp4')
+        }));
+
+      if (pickerData.length === 0) {
+        if (json.url || json.fileUrl) {
+          renderPreview(json);
+        } else {
+          showError('No downloadable formats were returned for this link.');
+        }
+      } else {
+        renderPreview({ thumb: json.thumb, title: json.title, source: json.source, duration: json.duration, uploader: json.uploader });
+        renderPicker(pickerData);
+      }
+    } else {
+      // redirect or tunnel/stream: single download URL
+      renderPreview({
+        thumb: json.thumb,
+        title: json.title,
+        source: json.source,
+        duration: json.duration,
+        uploader: json.uploader,
+        url: json.url || json.fileUrl,
+        fileUrl: json.fileUrl
+      });
+    }
+
+    previewCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Fetch with a 15-second timeout using AbortController
+  async function fetchWithTimeout(url, options, timeoutMs = 15000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const urlInput = document.getElementById('mediaUrl');
+    const userUrl = urlInput.value.trim();
+
+    // Basic client-side validation
+    if (!userUrl) {
+      showError('Please paste a valid media link first.');
+      return;
+    }
+    const isUrl = /^https?:\/\/.+/i.test(userUrl);
+    if (!isUrl) {
+      showError('That does not look like a valid URL. Paste the full link (e.g. https://…).');
+      urlInput.focus();
+      return;
+    }
+
+    setLoading(true);
+    showPreviewLoading();
+
+    try {
+      const res = await fetchWithTimeout(COBALT_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ url: userUrl }),
+        redirect: 'follow'
+      });
+
+      if (!res.ok) {
+        let errMsg = `Server returned an error (status ${res.status}).`;
+        try {
+          const errJson = await res.json();
+          if (errJson && errJson.error) errMsg = errJson.error;
+        } catch (_) {}
+        throw new Error(errMsg);
+      }
+
+      const json = await res.json();
+      if (!json) throw new Error('Empty response from server.');
+
+      handleResponse(json);
+    } catch (err) {
+      // Handle abort (timeout) separately for a clearer message
+      if (err && err.name === 'AbortError') {
+        showError('The request timed out after 15 seconds. The server may be busy — please try again.');
+      } else {
+        showError(err && err.message ? err.message : 'Something went wrong while contacting the download service. Please try again.');
+      }
+      previewCard.classList.remove('border-ember/60');
+      previewCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } finally {
+      // Always reset the button state back to normal
+      setLoading(false);
+    }
+  });
+
+  // Build the equalizer signature strip
+  (function buildEqualizer() {
+    const el = document.getElementById('equalizer');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const count = 28;
+    for (let i = 0; i < count; i++) {
+      const bar = document.createElement('span');
+      bar.className = 'eq-bar';
+      const height = 10 + Math.round(Math.random() * 18);
+      bar.style.height = height + 'px';
+      if (reduceMotion) {
+        bar.style.animation = 'none';
+        bar.style.transform = `scaleY(${(0.3 + Math.random() * 0.7).toFixed(2)})`;
+      } else {
+        bar.style.animationDuration = (0.8 + Math.random() * 0.9).toFixed(2) + 's';
+        bar.style.animationDelay = (Math.random() * 1.2).toFixed(2) + 's';
+      }
+      el.appendChild(bar);
+    }
+  })();
+</script>
+
+</body>
+</html>
