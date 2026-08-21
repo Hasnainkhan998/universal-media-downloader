@@ -813,16 +813,7 @@
     }
   }
 
-  // Also show a page-level loading state on the preview card
-  function setPreviewLoading() {
-    previewCard.innerHTML = `
-      <span class="absolute -top-3 left-5 bg-signal text-ink text-[11px] font-mono font-semibold uppercase tracking-wide rounded-full px-2.5 py-1">Preview · loading</span>
-      <div class="flex flex-col items-center justify-center py-10">
-        <div class="w-10 h-10 border-2 border-signal border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-steel text-sm font-mono">Fetching media info…</p>
-      </div>`;
-    previewCard.classList.remove('border-ember/60');
-  }
+  // Removed setPreviewLoading — inline button state is used in the submit handler
 
   // Normalize Cobalt status to internal type
   function getCobaltStatus(json) {
@@ -920,7 +911,6 @@
     // Hide any previous error and show loading state
     hideError();
     setLoading(true);
-    showPreviewLoading();
 
     try {
       const res = await fetchWithTimeout(COBALT_API, {
