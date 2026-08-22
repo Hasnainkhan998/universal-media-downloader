@@ -828,11 +828,11 @@
       : (item.url ? [{ url: item.url, quality: item.quality, type: item.type }] : []);
 
     // Map quality labels to download URLs - do a best-effort match from what Cobalt returned.
-    // IMPORTANT: Only return URLs that look like actual media files (not page URLs),
-    // so Instagram reels download the video instead of opening/playing the page.
-    function isMediaUrl(u) {
+    // Cobalt tunnel/redirect URLs are signed CDN links that often have NO file extension,
+    // so we accept any URL that is NOT a social-media page URL (instagram.com, youtube.com, etc.).
+    function isPageUrl(u) {
       if (!u || !u.url) return false;
-      return /\.(mp4|webm|m4a|mp3|mov|mkv)(\?|$)/i.test(u.url);
+      return /(instagram\.com|youtube\.com|youtu\.be|tiktok\.com|facebook\.com|linkedin\.com)\/(reel|p|watch|shorts|video|post|share)/i.test(u.url);
     }
     function findUrl(qualPart, preferAudio) {
       const q = String(qualPart).toLowerCase();
@@ -841,9 +841,9 @@
         (u.ext && String(u.ext).toLowerCase() === q) ||
         (preferAudio && u.type === 'audio' && q.includes('mp3'))
       );
-      if (match && isMediaUrl(match)) return match.url;
-      // Fallback: first URL that is actually a media file
-      const media = urls.find(isMediaUrl);
+      if (match && !isPageUrl(match)) return match.url;
+      // Fallback: first URL that is NOT a social-media page URL
+      const media = urls.find(u => !isPageUrl(u));
       return media ? media.url : null;
     }
 
@@ -918,14 +918,9 @@
           btn.addEventListener('click', () => {
             const url = btn.dataset.url;
             if (!url) return;
-            // Safe background download — keeps the user on the current page
-            const a = document.createElement('a');
-            a.href = url;
-            a.target = '_blank';
-            a.rel = 'noopener noreferrer';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
+            // Open the direct CDN URL in a new tab so the browser follows Cobalt's
+            // redirect chain natively and starts the download (instead of playing the video).
+            window.open(url, '_blank');
           });
         });
       }
