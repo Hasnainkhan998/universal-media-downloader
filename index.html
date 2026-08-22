@@ -827,7 +827,13 @@
       ? item.picker
       : (item.url ? [{ url: item.url, quality: item.quality, type: item.type }] : []);
 
-    // Map quality labels to download URLs - do a best-effort match from what Cobalt returned
+    // Map quality labels to download URLs - do a best-effort match from what Cobalt returned.
+    // IMPORTANT: Only return URLs that look like actual media files (not page URLs),
+    // so Instagram reels download the video instead of opening/playing the page.
+    function isMediaUrl(u) {
+      if (!u || !u.url) return false;
+      return /\.(mp4|webm|m4a|mp3|mov|mkv)(\?|$)/i.test(u.url);
+    }
     function findUrl(qualPart, preferAudio) {
       const q = String(qualPart).toLowerCase();
       const match = urls.find(u =>
@@ -835,7 +841,10 @@
         (u.ext && String(u.ext).toLowerCase() === q) ||
         (preferAudio && u.type === 'audio' && q.includes('mp3'))
       );
-      return match ? match.url : (urls.length ? urls[0].url : null);
+      if (match && isMediaUrl(match)) return match.url;
+      // Fallback: first URL that is actually a media file
+      const media = urls.find(isMediaUrl);
+      return media ? media.url : null;
     }
 
     // Determine the max source quality from the API response
@@ -1105,19 +1114,22 @@
     try {
     let lastError = null;
     let res = null;
-    // Try each API server in order until one succeeds
+    // Try each API server in order until one succeeds.
+    // The Railway instance supports the YouTube remux params (merges audio+video into a full MP4,
+    // fixing 0-byte downloads). api.cobalt.tools rejects those params with 400, so it gets the simple payload.
     for (const server of API_SERVERS) {
       try {
+        const isRailway = server.includes('railway.app');
+        const payload = isRailway
+          ? { url: userUrl, videoQuality: '1080', youtubeVideoCodec: 'h264', downloadMode: 'auto' }
+          : { url: userUrl, videoQuality: '1080' };
         res = await fetchWithTimeout(server, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          body: JSON.stringify({
-            url: userUrl,
-            videoQuality: '1080'
-          }),
+          body: JSON.stringify(payload),
           redirect: 'follow'
         });
         if (res.ok) break;
