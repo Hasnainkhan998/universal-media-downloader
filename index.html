@@ -1104,7 +1104,13 @@
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ url: userUrl }),
+        body: JSON.stringify({
+          url: userUrl,
+          videoQuality: '1080',
+          youtubeVideoCodec: 'h264',
+          downloadMode: 'auto',
+          youtubeDubLang: 'en'
+        }),
         redirect: 'follow'
       });
 
