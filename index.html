@@ -8,6 +8,7 @@
 <meta name="keywords" content="video downloader, youtube downloader, tiktok downloader no watermark, instagram video downloader, facebook video downloader, linkedin video downloader, mp3 converter">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#101322">
+<meta name="google-site-verification" content="Wv-aPk1_SGIqRF7Sp4HQTkHnkbbnMUpKZbAWWKy1CAw" />
 
 <!-- ============================================ -->
 <!-- STEP 1: Set your production domain everywhere -->
@@ -799,6 +800,36 @@
     errorBox.classList.add('hidden');
   }
 
+  // Safely convert any error value into a human-readable string (never [object Object])
+  function errorToString(val) {
+    if (val == null) return '';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+    if (typeof val === 'object') {
+      // Prefer known message-like keys first
+      if (typeof val.message === 'string') return val.message;
+      if (typeof val.code === 'string') return val.code;
+      if (typeof val.text === 'string') return val.text;
+      if (typeof val.error === 'string') return val.error;
+      if (typeof val.error?.message === 'string') return val.error.message;
+      if (typeof val.error?.code === 'string') return val.error.code;
+      // Last resort: flatten any object values found
+      const found = [];
+      for (const k in val) {
+        const v = val[k];
+        if (typeof v === 'string') { found.push(v); }
+        else if (v && typeof v === 'object') {
+          if (typeof v.message === 'string') found.push(v.message);
+          else if (typeof v.code === 'string') found.push(v.code);
+          else if (typeof v.text === 'string') found.push(v.text);
+        }
+      }
+      if (found.length) return found.join(' · ');
+      try { return JSON.stringify(val); } catch (_) { return ''; }
+    }
+    return String(val);
+  }
+
   // Build the resolution selection grid (2 rows x 3 columns, 2 cols on mobile)
   // Dynamically shows only resolutions up to the video's max source quality
   function buildQualityCards(item) {
@@ -889,14 +920,9 @@
           btn.addEventListener('click', () => {
             const url = btn.dataset.url;
             if (!url) return;
-            // Trigger the media download in the current window immediately
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = item.title ? item.title.replace(/[^\w\s-]/g, '') + '.mp4' : '';
-            a.rel = 'noopener';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            // Open the direct stream URL in a new tab so the browser downloads it natively
+            // This avoids cross-origin fetch/blob issues that cause 0-byte files
+            window.open(url, '_blank');
           });
         });
       }
@@ -998,8 +1024,8 @@
     const status = getCobaltStatus(json);
 
     if (status === 'error' || (!json.url && !json.fileUrl && !json.picker)) {
-      const code = json.error?.code || json.error?.message || json.error || json.text;
-      showError(code || 'Failed to process link. Please check the URL or API server status.');
+      const code = errorToString(json.error) || errorToString(json.text) || errorToString(json);
+      showError(code || 'An unexpected error occurred. Please try a standard video URL.');
       return;
     }
 
@@ -1111,7 +1137,9 @@
       if (err && err.name === 'AbortError') {
         showError('The request timed out after 15 seconds. The server may be busy — please try again.');
       } else {
-        showError(err && err.message ? err.message : 'Something went wrong while contacting the download service. Please try again.');
+        // Convert any error (raw object or Error) into a human-readable string — avoids [object Object]
+        const friendly = errorToString(err) || errorToString(err && err.text) || 'An unexpected error occurred. Please try a standard video URL.';
+        showError(friendly);
       }
       previewCard.classList.remove('border-ember/60');
       previewCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
