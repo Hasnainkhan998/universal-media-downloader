@@ -918,9 +918,26 @@
           btn.addEventListener('click', () => {
             const url = btn.dataset.url;
             if (!url) return;
-            // Open the direct CDN URL in a new tab so the browser follows Cobalt's
-            // redirect chain natively and starts the download (instead of playing the video).
-            window.open(url, '_blank');
+            // Fetch the video as a Blob and trigger a direct download.
+            // This avoids the browser playing the video in a new tab and
+            // ensures the fully merged file stream is saved (fixes 0-byte files).
+            (async () => {
+              try {
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const objectUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = objectUrl;
+                a.download = 'video.mp4';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(objectUrl);
+              } catch (e) {
+                // Fallback: if blob fetch fails (CORS), open the URL directly
+                window.open(url, '_blank');
+              }
+            })();
           });
         });
       }
