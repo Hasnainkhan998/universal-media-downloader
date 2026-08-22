@@ -800,34 +800,18 @@
     errorBox.classList.add('hidden');
   }
 
-  // Safely convert any error value into a human-readable string (never [object Object])
-  function errorToString(val) {
-    if (val == null) return '';
-    if (typeof val === 'string') return val;
-    if (typeof val === 'number' || typeof val === 'boolean') return String(val);
-    if (typeof val === 'object') {
-      // Prefer known message-like keys first
-      if (typeof val.message === 'string') return val.message;
-      if (typeof val.code === 'string') return val.code;
-      if (typeof val.text === 'string') return val.text;
-      if (typeof val.error === 'string') return val.error;
-      if (typeof val.error?.message === 'string') return val.error.message;
-      if (typeof val.error?.code === 'string') return val.error.code;
-      // Last resort: flatten any object values found
-      const found = [];
-      for (const k in val) {
-        const v = val[k];
-        if (typeof v === 'string') { found.push(v); }
-        else if (v && typeof v === 'object') {
-          if (typeof v.message === 'string') found.push(v.message);
-          else if (typeof v.code === 'string') found.push(v.code);
-          else if (typeof v.text === 'string') found.push(v.text);
-        }
-      }
-      if (found.length) return found.join(' · ');
-      try { return JSON.stringify(val); } catch (_) { return ''; }
+  // Bulletproof error extraction — never returns [object Object]
+  function getErrorMessage(res) {
+    if (!res) return 'An unexpected error occurred.';
+    if (typeof res === 'string') return res;
+    if (res.error) {
+      if (typeof res.error === 'string') return res.error;
+      if (typeof res.error === 'object') return res.error.code || res.error.message || 'This video link is not supported.';
     }
-    return String(val);
+    if (res.text) {
+      if (typeof res.text === 'string') return res.text;
+    }
+    return 'Failed to fetch video. Please check the link.';
   }
 
   // Build the resolution selection grid (2 rows x 3 columns, 2 cols on mobile)
@@ -920,9 +904,14 @@
           btn.addEventListener('click', () => {
             const url = btn.dataset.url;
             if (!url) return;
-            // Open the direct stream URL in a new tab so the browser downloads it natively
-            // This avoids cross-origin fetch/blob issues that cause 0-byte files
-            window.open(url, '_blank');
+            // Native direct download trigger — the browser handles the stream natively
+            const a = document.createElement('a');
+            a.href = url;
+            a.rel = 'noopener noreferrer';
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
           });
         });
       }
@@ -1024,8 +1013,8 @@
     const status = getCobaltStatus(json);
 
     if (status === 'error' || (!json.url && !json.fileUrl && !json.picker)) {
-      const code = errorToString(json.error) || errorToString(json.text) || errorToString(json);
-      showError(code || 'An unexpected error occurred. Please try a standard video URL.');
+      // Always call showError with getErrorMessage so [object Object] NEVER appears
+      showError(getErrorMessage(json));
       return;
     }
 
@@ -1137,9 +1126,8 @@
       if (err && err.name === 'AbortError') {
         showError('The request timed out after 15 seconds. The server may be busy — please try again.');
       } else {
-        // Convert any error (raw object or Error) into a human-readable string — avoids [object Object]
-        const friendly = errorToString(err) || errorToString(err && err.text) || 'An unexpected error occurred. Please try a standard video URL.';
-        showError(friendly);
+        // Bulletproof error extraction — never shows [object Object]
+        showError(getErrorMessage(err));
       }
       previewCard.classList.remove('border-ember/60');
       previewCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
