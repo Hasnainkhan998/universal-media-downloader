@@ -120,8 +120,7 @@
   }
 </style>
 
-<!-- Adsterra Popunder & Social Bar -->
-<script src="https://pl30962201.profitableratecpmnetwork.com/93/35/0d/93350d318824f0f5b19d340fc6fa3caf.js"></script>
+<!-- Adsterra Social Bar -->
 <script src="https://pl30962202.profitableratecpmnetwork.com/dc/31/ca/dc31ca158435301392370c38923cbdcd.js"></script>
 </head>
 
@@ -795,7 +794,7 @@
         </button>
       </div>`;
 
-    // Event delegation: 1080p opens ad in new tab + downloads; others download directly
+    // Event delegation: all quality buttons trigger direct downloads
     setTimeout(() => {
       const optionsArea = document.getElementById('downloadOptions');
       if (optionsArea) {
@@ -803,11 +802,6 @@
           btn.addEventListener('click', () => {
             const url = btn.dataset.url;
             if (!url) return;
-            const quality = btn.dataset.quality || '1080p';
-            if (quality === '1080p') {
-              // Monetization ad-lock: open ad link in new tab, then trigger the download
-              window.open(ADSTERRA_DIRECT_LINK, '_blank');
-            }
             // Trigger the media download in the current window immediately
             const a = document.createElement('a');
             a.href = url;
@@ -858,7 +852,7 @@
           <div id="downloadOptions" class="mt-4">
             ${hasUrls ? buildQualityCards(item) : '<p class="text-steel text-sm">No downloadable formats returned by the service.</p>'}
           </div>
-          <p class="mt-3 text-xs text-steel">Choose a format below to start your download. 1080p downloads are supported by our sponsor — a new tab opens, then your file downloads.</p>
+          <p class="mt-3 text-xs text-steel">Choose a format below to start your download. All formats are available as direct downloads.</p>
         </div>
       </div>`;
   }
