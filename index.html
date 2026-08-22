@@ -768,14 +768,24 @@
     // Use the first available URL as fallback for any quality that wasn't returned
     const fallbackUrl = urls.length ? urls[0].url : null;
 
+    // Dynamic file size calculation based on the video's actual duration (seconds)
+    // Average bitrates: 4K ~18 Mbps, 2K ~10 Mbps, 1080p ~5 Mbps, 720p ~2.5 Mbps, 480p ~1.2 Mbps, MP3 ~128 kbps
+    const durationSec = item.duration || 0;
+    function estimateSizeMB(mbps) {
+      if (!durationSec) return '';
+      // Mbps * seconds / 8 = MB
+      const mb = (mbps * durationSec) / 8;
+      return '~' + Math.max(1, Math.round(mb)) + ' MB';
+    }
+
     // Define all possible format options with metadata
     const allFormats = [
-      { key: '4k',    label: '4K',      sub: '2160p', badge: 'ULTRA HD',  size: '~128 MB',  find: () => findUrl('2160') || findUrl('4k'),  accent: 'signal' },
-      { key: '2k',    label: '2K',      sub: '1440p', badge: 'QUAD HD',   size: '~72 MB',   find: () => findUrl('1440') || findUrl('2k'),  accent: 'signal' },
-      { key: '1080p', label: '1080p',   sub: 'Full HD', badge: 'FULL HD',  size: '~64 MB',   find: () => findUrl('1080') || findUrl('hd'),  accent: 'signal' },
-      { key: '720p',  label: '720p',    sub: 'HD',      badge: 'HD',       size: '~38 MB',   find: () => findUrl('720'),                    accent: 'signal' },
-      { key: '480p',  label: '480p',    sub: 'SD',      badge: 'SD',       size: '~21 MB',   find: () => findUrl('480'),                    accent: 'signal' },
-      { key: 'mp3',   label: 'MP3',     sub: 'Audio',   badge: 'AUDIO',    size: '~5 MB',    find: () => findUrl('mp3', true),              accent: 'ember'  }
+      { key: '4k',    label: '4K',      sub: '2160p', badge: 'ULTRA HD',  size: () => estimateSizeMB(18),    find: () => findUrl('2160') || findUrl('4k'),  accent: 'signal' },
+      { key: '2k',    label: '2K',      sub: '1440p', badge: 'QUAD HD',   size: () => estimateSizeMB(10),    find: () => findUrl('1440') || findUrl('2k'),  accent: 'signal' },
+      { key: '1080p', label: '1080p',   sub: 'Full HD', badge: 'FULL HD',  size: () => estimateSizeMB(5),     find: () => findUrl('1080') || findUrl('hd'),  accent: 'signal' },
+      { key: '720p',  label: '720p',    sub: 'HD',      badge: 'HD',       size: () => estimateSizeMB(2.5),   find: () => findUrl('720'),                    accent: 'signal' },
+      { key: '480p',  label: '480p',    sub: 'SD',      badge: 'SD',       size: () => estimateSizeMB(1.2),   find: () => findUrl('480'),                    accent: 'signal' },
+      { key: 'mp3',   label: 'MP3',     sub: 'Audio',   badge: 'AUDIO',    size: () => estimateSizeMB(0.128), find: () => findUrl('mp3', true),              accent: 'ember'  }
     ];
 
     // Filter formats based on max source quality
@@ -797,7 +807,7 @@
               class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline ${isEmber ? 'hover:border-ember' : 'hover:border-signal'} bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 ${isEmber ? 'focus-visible:ring-ember' : 'focus-visible:ring-signal'}">
               <span class="text-sm font-semibold text-white font-mono">${f.label} <span class="text-[10px] font-body ${isEmber ? 'text-ember' : 'text-signal'}">(${f.sub})</span></span>
               <span class="text-[11px] text-steel font-mono flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full ${isEmber ? 'bg-ember' : 'bg-signal'}"></span> ${f.badge} · ${f.size}
+                <span class="w-1.5 h-1.5 rounded-full ${isEmber ? 'bg-ember' : 'bg-signal'}"></span> ${f.badge} · ${f.size()}
               </span>
             </button>`;
         }).join('')}
