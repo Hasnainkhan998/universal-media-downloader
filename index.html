@@ -772,10 +772,11 @@
     // Average bitrates: 4K ~18 Mbps, 2K ~10 Mbps, 1080p ~5 Mbps, 720p ~2.5 Mbps, 480p ~1.2 Mbps, MP3 ~128 kbps
     const durationSec = item.duration || 0;
     function estimateSizeMB(mbps) {
-      if (!durationSec) return '';
       // Mbps * seconds / 8 = MB
       const mb = (mbps * durationSec) / 8;
-      return '~' + Math.max(1, Math.round(mb)) + ' MB';
+      // Always show a size — use a reasonable default if duration is unknown
+      const size = durationSec ? Math.max(1, Math.round(mb)) : Math.round(mbps * 60 / 8);
+      return '~' + size + ' MB';
     }
 
     // Define all possible format options with metadata
