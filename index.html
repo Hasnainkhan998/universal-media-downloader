@@ -752,8 +752,13 @@
     }
   });
 
-  // Cobalt API integration
-  const COBALT_API = 'https://cobalt-production-1779.up.railway.app/';
+  // Cobalt API integration — fallback server list
+  const API_SERVERS = [
+    'https://api.cobalt.tools/',
+    'https://co.wuk.sh/',
+    'https://cobalt-api.kwippy.com/'
+  ];
+  const COBALT_API = API_SERVERS[0];
   // Monetization: ad link opened in a new tab when the 1080p button is clicked
   const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/qs7nhc95v?key=3ae07d9a00f3fa471ed82d8233e43600';
   const form = document.getElementById('downloadForm');
@@ -904,11 +909,11 @@
           btn.addEventListener('click', () => {
             const url = btn.dataset.url;
             if (!url) return;
-            // Native direct download trigger — the browser handles the stream natively
+            // Safe background download — keeps the user on the current page
             const a = document.createElement('a');
             a.href = url;
-            a.rel = 'noopener noreferrer';
             a.target = '_blank';
+            a.rel = 'noopener noreferrer';
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -1098,30 +1103,34 @@
     setLoading(true);
 
     try {
-      const res = await fetchWithTimeout(COBALT_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          url: userUrl,
-          videoQuality: '1080',
-          youtubeVideoCodec: 'h264',
-          downloadMode: 'auto',
-          youtubeDubLang: 'en'
-        }),
-        redirect: 'follow'
-      });
-
-      if (!res.ok) {
-        let errMsg = `Server returned an error (status ${res.status}).`;
-        try {
-          const errJson = await res.json();
-          if (errJson && errJson.error) errMsg = errJson.error;
-        } catch (_) {}
-        throw new Error(errMsg);
+    let lastError = null;
+    let res = null;
+    // Try each API server in order until one succeeds
+    for (const server of API_SERVERS) {
+      try {
+        res = await fetchWithTimeout(server, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            url: userUrl,
+            videoQuality: '1080',
+            youtubeVideoCodec: 'h264',
+            downloadMode: 'auto'
+          }),
+          redirect: 'follow'
+        });
+        if (res.ok) break;
+        lastError = new Error(`Server returned an error (status ${res.status}).`);
+      } catch (e) {
+        lastError = e;
       }
+    }
+    if (!res || !res.ok) {
+      throw lastError || new Error('All API servers failed.');
+    }
 
       const json = await res.json();
       if (!json) throw new Error('Empty response from server.');
