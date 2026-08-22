@@ -754,9 +754,8 @@
 
   // Cobalt API integration — fallback server list
   const API_SERVERS = [
-    'https://api.cobalt.tools/',
-    'https://co.wuk.sh/',
-    'https://cobalt-api.kwippy.com/'
+    'https://cobalt-api.kwippy.com/',
+    'https://co.wuk.sh/'
   ];
   const COBALT_API = API_SERVERS[0];
   // Monetization: ad link opened in a new tab when the 1080p button is clicked
@@ -1116,9 +1115,7 @@
           },
           body: JSON.stringify({
             url: userUrl,
-            videoQuality: '1080',
-            youtubeVideoCodec: 'h264',
-            downloadMode: 'auto'
+            videoQuality: '1080'
           }),
           redirect: 'follow'
         });
