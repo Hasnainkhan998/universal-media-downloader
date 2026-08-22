@@ -752,12 +752,16 @@
     }
   });
 
-  // Cobalt API integration — the self-hosted Railway instance is the primary
-  // (it was confirmed working). api.cobalt.tools is a fallback.
-  const API_SERVERS = [
-    'https://cobalt-production-1779.up.railway.app/',
+  // Cobalt API integration — dynamic server instance rotation.
+  // Loops through these instances until one returns a valid, non-blocked response.
+  const cobaltInstances = [
+    'https://cobalt-api.kwippy.com/',
+    'https://co.wuk.sh/',
+    'https://cobalt.stream/',
+    'https://cobalt.qtfy.dev/',
     'https://api.cobalt.tools/'
   ];
+  const API_SERVERS = cobaltInstances;
   const COBALT_API = API_SERVERS[0];
   // Monetization: ad link opened in a new tab when the 1080p button is clicked
   const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/qs7nhc95v?key=3ae07d9a00f3fa471ed82d8233e43600';
@@ -918,26 +922,40 @@
           btn.addEventListener('click', () => {
             const url = btn.dataset.url;
             if (!url) return;
-            // Fetch the video as a Blob and trigger a direct download.
-            // This avoids the browser playing the video in a new tab and
-            // ensures the fully merged file stream is saved (fixes 0-byte files).
-            (async () => {
-              try {
-                const res = await fetch(url);
-                const blob = await res.blob();
-                const objectUrl = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = objectUrl;
-                a.download = 'video.mp4';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(objectUrl);
-              } catch (e) {
-                // Fallback: if blob fetch fails (CORS), open the URL directly
-                window.open(url, '_blank');
-              }
-            })();
+            // For YouTube links, trigger the download directly via native navigation
+            // (bypass Blob fetch to avoid memory drops on long streams).
+            // For other platforms, use the Blob fetch technique.
+            const isYouTube = /youtube\.com|youtu\.be/i.test(item.source || '');
+            if (isYouTube) {
+              // Direct stream trigger — browser handles the YouTube stream natively
+              const a = document.createElement('a');
+              a.href = url;
+              a.target = '_blank';
+              a.rel = 'noopener noreferrer';
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+            } else {
+              // Fetch the video as a Blob and trigger a direct download.
+              // This avoids the browser playing the video in a new tab.
+              (async () => {
+                try {
+                  const res = await fetch(url);
+                  const blob = await res.blob();
+                  const objectUrl = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = objectUrl;
+                  a.download = 'video.mp4';
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                  URL.revokeObjectURL(objectUrl);
+                } catch (e) {
+                  // Fallback: if blob fetch fails (CORS), open the URL directly
+                  window.open(url, '_blank');
+                }
+              })();
+            }
           });
         });
       }
@@ -1126,22 +1144,20 @@
     try {
     let lastError = null;
     let res = null;
-    // Try each API server in order until one succeeds.
-    // The Railway instance supports the YouTube remux params (merges audio+video into a full MP4,
-    // fixing 0-byte downloads). api.cobalt.tools rejects those params with 400, so it gets the simple payload.
+    // Try each API server in order until one returns a valid, non-blocked response.
     for (const server of API_SERVERS) {
       try {
-        const isRailway = server.includes('railway.app');
-        const payload = isRailway
-          ? { url: userUrl, videoQuality: '1080', youtubeVideoCodec: 'h264', downloadMode: 'auto' }
-          : { url: userUrl, videoQuality: '1080' };
         res = await fetchWithTimeout(server, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            url: userUrl,
+            videoQuality: '720',
+            youtubeVideoCodec: 'h264'
+          }),
           redirect: 'follow'
         });
         if (res.ok) break;
