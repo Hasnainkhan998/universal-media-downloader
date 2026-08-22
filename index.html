@@ -669,6 +669,8 @@
 
   // Cobalt API integration
   const COBALT_API = 'https://cobalt-production-1779.up.railway.app/';
+  // Monetization: ad link opened in a new tab when the 1080p button is clicked
+  const ADSTERRA_DIRECT_LINK = 'https://www.example-ad-link.com';
   const form = document.getElementById('downloadForm');
   const previewCard = document.getElementById('previewCard');
   const submitBtn = form.querySelector('button[type="submit"]');
@@ -713,9 +715,104 @@
     errorBox.classList.add('hidden');
   }
 
-  // Render the preview card with direct download info / options
+  // Build the four quality format cards (1080p, 720p, 480p, MP3) matching the wireframe structure
+  // Returns both the card HTML and the individual direct-download URLs for the selected quality
+  function buildQualityCards(item) {
+    // Derive candidate download URLs from the API response (single or picker)
+    const urls = item.picker && item.picker.length
+      ? item.picker
+      : (item.url ? [{ url: item.url, quality: item.quality, type: item.type }] : []);
+
+    // Map quality labels to download URLs - do a best-effort match from what Cobalt returned
+    function findUrl(qualPart, preferAudio) {
+      const q = String(qualPart).toLowerCase();
+      const match = urls.find(u =>
+        (u.quality && String(u.quality).toLowerCase().includes(q)) ||
+        (u.ext && String(u.ext).toLowerCase() === q) ||
+        (preferAudio && u.type === 'audio' && q.includes('mp3'))
+      );
+      return match ? match.url : (urls.length ? urls[0].url : null);
+    }
+
+    const url1080 = findUrl('1080') || findUrl('hd');
+    const url720 = findUrl('720');
+    const url480 = findUrl('480');
+    const urlMp3 = findUrl('mp3', true);
+
+    // Use the first available URL as fallback for any quality that wasn't returned
+    const fallbackUrl = urls.length ? urls[0].url : null;
+
+    const cardHTML = `
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <button type="button" data-quality="1080p" data-url="${escapeHTML(url1080 || fallbackUrl || '')}"
+          class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal">
+          <span class="text-sm font-semibold text-white font-mono">1080p <span class="text-[10px] font-body text-signal">(Full HD)</span></span>
+          <span class="text-[11px] text-steel font-mono flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-signal"></span> High Quality · Ad Supported
+          </span>
+        </button>
+        <button type="button" data-quality="720p" data-url="${escapeHTML(url720 || fallbackUrl || '')}"
+          class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal">
+          <span class="text-sm font-semibold text-white font-mono">720p <span class="text-[11px] font-normal text-steel">(HD)</span></span>
+          <span class="text-[11px] text-steel font-mono flex items-center gap-1.5">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Direct Download
+          </span>
+        </button>
+        <button type="button" data-quality="480p" data-url="${escapeHTML(url480 || fallbackUrl || '')}"
+          class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal">
+          <span class="text-sm font-semibold text-white font-mono">480p <span class="text-[11px] font-normal text-steel">(SD)</span></span>
+          <span class="text-[11px] text-steel font-mono flex items-center gap-1.5">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Direct Download
+          </span>
+        </button>
+        <button type="button" data-quality="mp3" data-url="${escapeHTML(urlMp3 || fallbackUrl || '')}"
+          class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-ember bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-ember">
+          <span class="text-sm font-semibold text-white font-mono">MP3 <span class="text-[11px] font-normal text-steel">(Audio)</span></span>
+          <span class="text-[11px] text-steel font-mono flex items-center gap-1.5">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            Direct Download
+          </span>
+        </button>
+      </div>`;
+
+    // Event delegation: 1080p opens ad in new tab + downloads; others download directly
+    setTimeout(() => {
+      const optionsArea = document.getElementById('downloadOptions');
+      if (optionsArea) {
+        optionsArea.querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const url = btn.dataset.url;
+            if (!url) return;
+            const quality = btn.dataset.quality || '1080p';
+            if (quality === '1080p') {
+              // Monetization ad-lock: open ad link in new tab, then trigger the download
+              window.open(ADSTERRA_DIRECT_LINK, '_blank');
+            }
+            // Trigger the media download in the current window
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = item.title ? item.title.replace(/[^\w\s-]/g, '') + '.mp4' : '';
+            a.target = '_blank';
+            a.rel = 'noopener';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          });
+        });
+      }
+    }, 0);
+
+    return cardHTML;
+  }
+
+  // Render the preview card with dynamic metadata (thumbnail, title, duration) and quality cards
   function renderPreview(item) {
     const thumb = item.thumb || '';
+    const poster = thumb
+      ? thumb
+      : 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360"><rect width="640" height="360" fill="#181C30"/><text x="320" y="190" font-family="sans-serif" font-size="20" fill="#9298B0" text-anchor="middle">No thumbnail available</text></svg>');
     const title = item.title || 'Download your media';
     const duration = item.duration ? formatDuration(item.duration) : '';
     const source = item.source ? new URL(item.source).hostname.replace('www.', '') : 'source';
@@ -726,39 +823,25 @@
       item.uploader && `Uploaded by ${escapeHTML(item.uploader)}`
     ].filter(Boolean).join(' · ');
 
-    const hasFile = !!item.url || !!item.singleUrl;
+    const hasUrls = !!(item.url || (item.picker && item.picker.length));
 
     previewCard.innerHTML = `
       <span class="absolute -top-3 left-5 bg-signal text-ink text-[11px] font-mono font-semibold uppercase tracking-wide rounded-full px-2.5 py-1">Ready to download</span>
 
       <div class="flex flex-col sm:flex-row gap-5">
         <div class="relative shrink-0 w-full sm:w-52 aspect-video rounded-xl overflow-hidden bg-ink border border-inkline flex items-center justify-center">
-          ${thumb
-            ? `<img src="${escapeHTML(thumb)}" alt="Video thumbnail" class="absolute inset-0 w-full h-full object-cover">`
-            : `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="text-steel"><circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="1.5"/><path d="M10 8.5v7l6-3.5-6-3.5z" fill="currentColor"/></svg>`}
+          <img src="${escapeHTML(poster)}" alt="Video thumbnail" class="absolute inset-0 w-full h-full object-cover">
+          ${duration ? `<span class="absolute bottom-2 right-2 bg-ink/80 text-white text-xs font-mono px-1.5 py-0.5 rounded">${escapeHTML(duration)}</span>` : ''}
         </div>
 
         <div class="flex-1 min-w-0">
           <h3 class="font-display font-semibold text-lg text-white truncate">${escapeHTML(title)}</h3>
           <p class="text-sm text-steel mt-1 font-mono">${escapeHTML(metaBits)}</p>
 
-          <div id="downloadOptions" class="mt-4 grid grid-cols-2 sm:grid-cols-${hasFile ? 3 : 4} gap-2.5">
-            ${hasFile
-              ? `
-                <a href="${escapeHTML(item.url || item.fileUrl)}" download target="_blank" rel="noopener"
-                   class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal group">
-                  <span class="text-sm font-semibold text-white font-mono">Download</span>
-                  <span class="text-[11px] text-steel font-mono">Direct link</span>
-                </a>
-                <a href="${escapeHTML(item.url || item.fileUrl)}" download target="_blank" rel="noopener"
-                   class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-ember bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-ember group">
-                  <span class="text-sm font-semibold text-white font-mono">Audio</span>
-                  <span class="text-[11px] text-steel font-mono">MP3</span>
-                </a>`
-              : ''
-            }
+          <div id="downloadOptions" class="mt-4">
+            ${hasUrls ? buildQualityCards(item) : '<p class="text-steel text-sm">No downloadable formats returned by the service.</p>'}
           </div>
-          <p class="mt-3 text-xs text-steel">${hasFile ? 'Click Download to save directly to your device.' : 'Choose a format below to start your download.'}</p>
+          <p class="mt-3 text-xs text-steel">Choose a format below to start your download. 1080p downloads are supported by our sponsor — a new tab opens, then your file downloads.</p>
         </div>
       </div>`;
   }
@@ -769,33 +852,17 @@
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
 
-  // Render download options dynamically for picker status
+  // Render download options dynamically for picker status using the same quality card UI
   function renderPicker(pickerData, metadata, thumb, title) {
-    const optionsArea = document.getElementById('downloadOptions');
-    if (!optionsArea) {
-      renderPreview({ url: pickerData[0] && pickerData[0].url, thumb, title });
-      return;
-    }
-
-    optionsArea.innerHTML = pickerData.map((opt, index) => {
-      // Cobalt picker items often have .url, .qual (quality), .type / .ext variants
-      const url = opt.url;
-      const qualityLabel = opt.quality || opt.qual || opt.label || (opt.type === 'audio' ? 'MP3' : 'Video');
-      const ext = opt.ext || (opt.type === 'audio' ? 'mp3' : 'mp4');
-
-      return `
-        <a href="${escapeHTML(url)}" download target="_blank" rel="noopener"
-           class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal group">
-          <span class="text-sm font-semibold text-white font-mono">${escapeHTML(qualityLabel)}</span>
-          <span class="text-[11px] text-steel font-mono">${escapeHTML(String(ext).toUpperCase())}</span>
-        </a>`;
-    }).join('');
-
-    // Update the hint text under the options
-    const hint = optionsArea.nextElementSibling;
-    if (hint && hint.tagName === 'P') {
-      hint.textContent = 'Choose a format below to start your download.';
-    }
+    renderPreview({
+      thumb: metadata?.thumb || thumb,
+      title: metadata?.title || title,
+      source: metadata?.source,
+      duration: metadata?.duration,
+      uploader: metadata?.uploader,
+      url: (pickerData && pickerData[0] && pickerData[0].url) || undefined,
+      picker: pickerData
+    });
   }
 
   // Show loading spinner on the submit button
@@ -860,8 +927,13 @@
           showError('No downloadable formats were returned for this link.');
         }
       } else {
-        renderPreview({ thumb: json.thumb, title: json.title, source: json.source, duration: json.duration, uploader: json.uploader });
-        renderPicker(pickerData);
+        renderPicker(pickerData, {
+          thumb: json.thumb,
+          title: json.title,
+          source: json.source,
+          duration: json.duration,
+          uploader: json.uploader
+        });
       }
     } else {
       // redirect or tunnel/stream: single download URL
