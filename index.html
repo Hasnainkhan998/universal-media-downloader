@@ -752,12 +752,11 @@
     }
   });
 
-  // Cobalt API integration — direct CORS-enabled instances.
-  // api.cobalt.tools is the official instance and supports browser CORS.
+  // Cobalt API integration — the self-hosted Railway instance is the primary
+  // (it was confirmed working). api.cobalt.tools is a fallback.
   const API_SERVERS = [
-    'https://api.cobalt.tools/',
-    'https://cobalt-api.kwippy.com/',
-    'https://co.wuk.sh/'
+    'https://cobalt-production-1779.up.railway.app/',
+    'https://api.cobalt.tools/'
   ];
   const COBALT_API = API_SERVERS[0];
   // Monetization: ad link opened in a new tab when the 1080p button is clicked
@@ -1117,9 +1116,7 @@
           },
           body: JSON.stringify({
             url: userUrl,
-            videoQuality: '1080',
-            youtubeVideoCodec: 'h264',
-            downloadMode: 'auto'
+            videoQuality: '1080'
           }),
           redirect: 'follow'
         });
