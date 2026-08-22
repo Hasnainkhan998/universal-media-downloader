@@ -8,24 +8,33 @@
 <meta name="keywords" content="video downloader, youtube downloader, tiktok downloader no watermark, instagram video downloader, facebook video downloader, linkedin video downloader, mp3 converter">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#101322">
-<!-- Replace with your production domain before launch -->
+
+<!-- ============================================ -->
+<!-- STEP 1: Set your production domain everywhere -->
+<!-- In your deployment/build script, replace all occurrences of:  https://www.grabsy.app  with your real domain -->
+<!-- Example:  https://yourdomain.com  -->
+<!-- ============================================ -->
+<meta name="author" content="Grabsy">
+
+<!-- Canonical (STEP 1: swap domain) -->
 <link rel="canonical" href="https://www.grabsy.app/">
+
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23101322'/%3E%3Cpath d='M20 9v15m0 0-6-6m6 6 6-6' stroke='%232FDF84' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Crect x='11' y='29' width='18' height='3' rx='1.5' fill='%23FF6B4A'/%3E%3C/svg%3E">
 
-<!-- Open Graph -->
+<!-- Open Graph (STEP 1: swap og:url and og:image domain) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Grabsy">
-<meta property="og:title" content="Grabsy — Universal Video &amp; Audio Downloader">
+<meta property="og:title" content="Grabsy — Free Online Video & Audio Downloader">
 <meta property="og:description" content="Paste a link from YouTube, TikTok, Instagram, Facebook or LinkedIn and grab the MP4 or MP3 in seconds. No watermark on TikTok saves.">
 <meta property="og:url" content="https://www.grabsy.app/">
-<!-- Replace with a real 1200x630 social preview image -->
+<!-- STEP 2: Add a real 1200x630 social preview image and host it at /og-image.jpg -->
 <meta property="og:image" content="https://www.grabsy.app/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 
-<!-- Twitter Card -->
+<!-- Twitter Card (STEP 1: swap twitter:image domain) -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Grabsy — Universal Video &amp; Audio Downloader">
+<meta name="twitter:title" content="Grabsy — Free Online Video & Audio Downloader">
 <meta name="twitter:description" content="Save video or audio from YouTube, TikTok, Instagram, Facebook and LinkedIn in one paste. Free, fast, no watermark.">
 <meta name="twitter:image" content="https://www.grabsy.app/og-image.jpg">
 
@@ -50,6 +59,64 @@
     "Instagram Reels, Stories and post download",
     "Facebook public video download",
     "LinkedIn video post download"
+  ]
+}
+</script>
+
+<!-- Schema.org: FAQPage (matches the visible FAQ section) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Grabsy free to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Pasting a link and downloading a video or MP3 doesn't require an account, a subscription or an app install."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it legal to download videos this way?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Downloading is intended for content you own, have explicit permission to save, or that's shared under a license permitting downloads. You're responsible for how you use downloaded files and for following each platform's terms."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does TikTok save without a watermark?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Grabsy fetches the original render of the clip rather than the shared re-encode, so the on-screen username sticker used for shared links never gets baked in."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it work on my phone?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. The page is fully responsive and works in any modern mobile browser on iOS or Android, no app required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which audio format do I get from MP3 downloads?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Audio-only downloads are delivered as standard MP3 files, so they play on virtually any device or media player."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a daily download limit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reasonable personal use is unrestricted. Automated or bulk scraping is not permitted — see our Terms of Service for details."
+      }
+    }
   ]
 }
 </script>
@@ -179,7 +246,7 @@
     </span>
 
     <h1 class="font-display font-semibold text-4xl sm:text-5xl md:text-6xl leading-[1.05] tracking-tight">
-      Save any video or song.<br class="hidden sm:block">
+      Free Online Video & Audio Downloader.<br class="hidden sm:block">
       <span class="text-signal">Any platform.</span> In seconds.
     </h1>
 
