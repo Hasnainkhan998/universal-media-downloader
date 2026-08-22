@@ -732,8 +732,8 @@
     errorBox.classList.add('hidden');
   }
 
-  // Build the four quality format cards (1080p, 720p, 480p, MP3) matching the wireframe structure
-  // Returns both the card HTML and the individual direct-download URLs for the selected quality
+  // Build the resolution selection grid (2 rows x 3 columns, 2 cols on mobile)
+  // Dynamically shows only resolutions up to the video's max source quality
   function buildQualityCards(item) {
     // Derive candidate download URLs from the API response (single or picker)
     const urls = item.picker && item.picker.length
@@ -751,50 +751,59 @@
       return match ? match.url : (urls.length ? urls[0].url : null);
     }
 
-    const url1080 = findUrl('1080') || findUrl('hd');
-    const url720 = findUrl('720');
-    const url480 = findUrl('480');
-    const urlMp3 = findUrl('mp3', true);
+    // Determine the max source quality from the API response
+    // Look for the highest resolution mentioned in quality labels
+    let maxQuality = 0;
+    urls.forEach(u => {
+      const qStr = String(u.quality || '').toLowerCase();
+      const match = qStr.match(/(\d{3,4})p/);
+      if (match) {
+        const res = parseInt(match[1], 10);
+        if (res > maxQuality) maxQuality = res;
+      }
+    });
+    // If no explicit resolution found, default to 1080p
+    if (maxQuality === 0) maxQuality = 1080;
 
     // Use the first available URL as fallback for any quality that wasn't returned
     const fallbackUrl = urls.length ? urls[0].url : null;
 
+    // Define all possible format options with metadata
+    const allFormats = [
+      { key: '4k',    label: '4K',      sub: '2160p', badge: 'ULTRA HD',  size: '~128 MB',  find: () => findUrl('2160') || findUrl('4k'),  accent: 'signal' },
+      { key: '2k',    label: '2K',      sub: '1440p', badge: 'QUAD HD',   size: '~72 MB',   find: () => findUrl('1440') || findUrl('2k'),  accent: 'signal' },
+      { key: '1080p', label: '1080p',   sub: 'Full HD', badge: 'FULL HD',  size: '~64 MB',   find: () => findUrl('1080') || findUrl('hd'),  accent: 'signal' },
+      { key: '720p',  label: '720p',    sub: 'HD',      badge: 'HD',       size: '~38 MB',   find: () => findUrl('720'),                    accent: 'signal' },
+      { key: '480p',  label: '480p',    sub: 'SD',      badge: 'SD',       size: '~21 MB',   find: () => findUrl('480'),                    accent: 'signal' },
+      { key: 'mp3',   label: 'MP3',     sub: 'Audio',   badge: 'AUDIO',    size: '~5 MB',    find: () => findUrl('mp3', true),              accent: 'ember'  }
+    ];
+
+    // Filter formats based on max source quality
+    const resolutionThresholds = { '4k': 2160, '2k': 1440, '1080p': 1080, '720p': 720, '480p': 480 };
+    const visibleFormats = allFormats.filter(f => {
+      if (f.key === 'mp3') return true; // MP3 always available
+      const threshold = resolutionThresholds[f.key];
+      return maxQuality >= threshold;
+    });
+
+    // Build the 2x3 grid (2 columns on mobile, 3 columns on sm+)
     const cardHTML = `
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <button type="button" data-quality="1080p" data-url="${escapeHTML(url1080 || fallbackUrl || '')}"
-          class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal">
-          <span class="text-sm font-semibold text-white font-mono">1080p <span class="text-[10px] font-body text-signal">(Full HD)</span></span>
-          <span class="text-[11px] text-steel font-mono flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-signal"></span> High Quality · Ad Supported
-          </span>
-        </button>
-        <button type="button" data-quality="720p" data-url="${escapeHTML(url720 || fallbackUrl || '')}"
-          class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal">
-          <span class="text-sm font-semibold text-white font-mono">720p <span class="text-[11px] font-normal text-steel">(HD)</span></span>
-          <span class="text-[11px] text-steel font-mono flex items-center gap-1.5">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-            Direct Download
-          </span>
-        </button>
-        <button type="button" data-quality="480p" data-url="${escapeHTML(url480 || fallbackUrl || '')}"
-          class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-signal bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-signal">
-          <span class="text-sm font-semibold text-white font-mono">480p <span class="text-[11px] font-normal text-steel">(SD)</span></span>
-          <span class="text-[11px] text-steel font-mono flex items-center gap-1.5">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-            Direct Download
-          </span>
-        </button>
-        <button type="button" data-quality="mp3" data-url="${escapeHTML(urlMp3 || fallbackUrl || '')}"
-          class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline hover:border-ember bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-ember">
-          <span class="text-sm font-semibold text-white font-mono">MP3 <span class="text-[11px] font-normal text-steel">(Audio)</span></span>
-          <span class="text-[11px] text-steel font-mono flex items-center gap-1.5">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-            Direct Download
-          </span>
-        </button>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+        ${visibleFormats.map(f => {
+          const url = f.find() || fallbackUrl;
+          const isEmber = f.accent === 'ember';
+          return `
+            <button type="button" data-quality="${f.key}" data-url="${escapeHTML(url || '')}"
+              class="format-btn flex flex-col items-start gap-1 rounded-xl border border-inkline ${isEmber ? 'hover:border-ember' : 'hover:border-signal'} bg-ink px-3 py-2.5 text-left transition-colors focus-visible:ring-2 ${isEmber ? 'focus-visible:ring-ember' : 'focus-visible:ring-signal'}">
+              <span class="text-sm font-semibold text-white font-mono">${f.label} <span class="text-[10px] font-body ${isEmber ? 'text-ember' : 'text-signal'}">(${f.sub})</span></span>
+              <span class="text-[11px] text-steel font-mono flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full ${isEmber ? 'bg-ember' : 'bg-signal'}"></span> ${f.badge} · ${f.size}
+              </span>
+            </button>`;
+        }).join('')}
       </div>`;
 
-    // Event delegation: all quality buttons trigger direct downloads
+    // Event delegation: all quality buttons trigger direct downloads (no ads)
     setTimeout(() => {
       const optionsArea = document.getElementById('downloadOptions');
       if (optionsArea) {
