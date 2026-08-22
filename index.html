@@ -292,12 +292,19 @@
   </div>
 </section>
 
-<!-- Ad Slot #2 -->
+<!-- Ad Slot #2: Bottom Leaderboard Banner (728x90) -->
 <section class="bg-paper">
-  <div class="max-w-4xl mx-auto px-5 sm:px-8 py-8">
-    <div class="border border-dashed border-paperline rounded-xl h-[90px] flex items-center justify-center text-steeldark text-xs font-mono tracking-wide">
-      AD SLOT · 728×90 BANNER
-    </div>
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 py-8 flex items-center justify-center">
+    <script>
+      atOptions = {
+        'key' : 'd573bec93d5f0f02808e6d02a0aea670',
+        'format' : 'iframe',
+        'height' : 90,
+        'width' : 728,
+        'params' : {}
+      };
+    </script>
+    <script src="https://www.highrevenueformat.com/d573bec93d5f0f02808e6d02a0aea670/invoke.js"></script>
   </div>
 </section>
 
@@ -801,11 +808,10 @@
               // Monetization ad-lock: open ad link in new tab, then trigger the download
               window.open(ADSTERRA_DIRECT_LINK, '_blank');
             }
-            // Trigger the media download in the current window
+            // Trigger the media download in the current window immediately
             const a = document.createElement('a');
             a.href = url;
             a.download = item.title ? item.title.replace(/[^\w\s-]/g, '') + '.mp4' : '';
-            a.target = '_blank';
             a.rel = 'noopener';
             document.body.appendChild(a);
             a.click();
