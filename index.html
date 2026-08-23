@@ -759,6 +759,14 @@
     'https://api.cobalt.tools/'
   ];
   const COBALT_API = API_SERVERS[0];
+  // Tracks the currently submitted URL so quality buttons can build custom payloads
+  let currentUserUrl = '';
+  // Helper: detect YouTube Long Videos (watch or youtu.be, excluding /shorts/)
+  function isYouTubeLongVideo(url) {
+    if (!url) return false;
+    if (/\/shorts\//i.test(url)) return false;
+    return /youtube\.com\/watch|youtu\.be\//i.test(url);
+  }
   // Monetization: ad link opened in a new tab when the 1080p button is clicked
   const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/qs7nhc95v?key=3ae07d9a00f3fa471ed82d8233e43600';
   const form = document.getElementById('downloadForm');
@@ -875,15 +883,25 @@
       return '~' + size + ' MB';
     }
 
-    // Define all possible format options with metadata
-    const allFormats = [
-      { key: '4k',    label: '4K',      sub: '2160p', badge: 'ULTRA HD',  size: () => estimateSizeMB(18),    find: () => findUrl('2160') || findUrl('4k'),  accent: 'signal' },
-      { key: '2k',    label: '2K',      sub: '1440p', badge: 'QUAD HD',   size: () => estimateSizeMB(10),    find: () => findUrl('1440') || findUrl('2k'),  accent: 'signal' },
-      { key: '1080p', label: '1080p',   sub: 'Full HD', badge: 'FULL HD',  size: () => estimateSizeMB(5),     find: () => findUrl('1080') || findUrl('hd'),  accent: 'signal' },
-      { key: '720p',  label: '720p',    sub: 'HD',      badge: 'HD',       size: () => estimateSizeMB(2.5),   find: () => findUrl('720'),                    accent: 'signal' },
-      { key: '480p',  label: '480p',    sub: 'SD',      badge: 'SD',       size: () => estimateSizeMB(1.2),   find: () => findUrl('480'),                    accent: 'signal' },
-      { key: 'mp3',   label: 'MP3',     sub: 'Audio',   badge: 'AUDIO',    size: () => estimateSizeMB(0.128), find: () => findUrl('mp3', true),              accent: 'ember'  }
-    ];
+    // Detect YouTube Long Videos (watch or youtu.be, excluding /shorts/)
+    const isYTLong = isYouTubeLongVideo(currentUserUrl);
+
+    // Define all possible format options with metadata.
+    // For YouTube Long Videos, use custom labels and payload modes.
+    const allFormats = isYTLong
+      ? [
+          { key: '1080p', label: '1080p', sub: 'Video Only - No Audio', badge: 'VIDEO ONLY', size: () => estimateSizeMB(5),     find: () => findUrl('1080') || findUrl('hd'),  accent: 'signal', mode: 'mute' },
+          { key: '720p',  label: '720p',  sub: 'Video + Audio',        badge: 'HD',         size: () => estimateSizeMB(2.5),   find: () => findUrl('720'),                    accent: 'signal', mode: 'auto' },
+          { key: 'mp3',   label: 'MP3',   sub: 'Audio Only',           badge: 'AUDIO',      size: () => estimateSizeMB(0.128), find: () => findUrl('mp3', true),              accent: 'ember',  mode: 'audio' }
+        ]
+      : [
+          { key: '4k',    label: '4K',      sub: '2160p', badge: 'ULTRA HD',  size: () => estimateSizeMB(18),    find: () => findUrl('2160') || findUrl('4k'),  accent: 'signal' },
+          { key: '2k',    label: '2K',      sub: '1440p', badge: 'QUAD HD',   size: () => estimateSizeMB(10),    find: () => findUrl('1440') || findUrl('2k'),  accent: 'signal' },
+          { key: '1080p', label: '1080p',   sub: 'Full HD', badge: 'FULL HD',  size: () => estimateSizeMB(5),     find: () => findUrl('1080') || findUrl('hd'),  accent: 'signal' },
+          { key: '720p',  label: '720p',    sub: 'HD',      badge: 'HD',       size: () => estimateSizeMB(2.5),   find: () => findUrl('720'),                    accent: 'signal' },
+          { key: '480p',  label: '480p',    sub: 'SD',      badge: 'SD',       size: () => estimateSizeMB(1.2),   find: () => findUrl('480'),                    accent: 'signal' },
+          { key: 'mp3',   label: 'MP3',     sub: 'Audio',   badge: 'AUDIO',    size: () => estimateSizeMB(0.128), find: () => findUrl('mp3', true),              accent: 'ember'  }
+        ];
 
     // Filter formats based on max source quality
     const resolutionThresholds = { '4k': 2160, '2k': 1440, '1080p': 1080, '720p': 720, '480p': 480 };
@@ -918,26 +936,77 @@
           btn.addEventListener('click', () => {
             const url = btn.dataset.url;
             if (!url) return;
-            // Fetch the video as a Blob and trigger a direct download.
-            // This avoids the browser playing the video in a new tab and
-            // ensures the fully merged file stream is saved (fixes 0-byte files).
-            (async () => {
-              try {
-                const res = await fetch(url);
-                const blob = await res.blob();
-                const objectUrl = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = objectUrl;
-                a.download = 'video.mp4';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(objectUrl);
-              } catch (e) {
-                // Fallback: if blob fetch fails (CORS), open the URL directly
-                window.open(url, '_blank');
+            const quality = btn.dataset.quality;
+            const isYTLong = isYouTubeLongVideo(currentUserUrl);
+
+            // For YouTube Long Videos, bypass Blob buffering and use native direct download.
+            // Also, MP3/Audio buttons on ALL platforms use downloadMode:'audio' payload.
+            if (isYTLong || quality === 'mp3') {
+              // Build the appropriate payload
+              let payload;
+              if (quality === 'mp3') {
+                // Global MP3/Audio: request audio-only for ANY platform
+                payload = { url: currentUserUrl, downloadMode: 'audio' };
+              } else {
+                // YouTube Long Video: use the format's mode (mute/auto)
+                const fmt = allFormats.find(f => f.key === quality);
+                const mode = fmt ? fmt.mode : 'auto';
+                payload = { url: currentUserUrl, videoQuality: quality.replace('p', ''), downloadMode: mode };
               }
-            })();
+
+              // Fetch the audio/video URL from the API with the custom payload
+              (async () => {
+                try {
+                  let res = null;
+                  for (const server of API_SERVERS) {
+                    try {
+                      res = await fetchWithTimeout(server, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify(payload),
+                        redirect: 'follow'
+                      });
+                      if (res.ok) break;
+                    } catch (e) { /* try next server */ }
+                  }
+                  if (!res || !res.ok) throw new Error('Failed to fetch media');
+                  const json = await res.json();
+                  const mediaUrl = json.url || json.fileUrl;
+                  if (!mediaUrl) throw new Error('No media URL returned');
+
+                  // Native direct download via dynamic anchor (bypasses Blob buffering)
+                  const a = document.createElement('a');
+                  a.href = mediaUrl;
+                  a.target = '_blank';
+                  a.rel = 'noopener noreferrer';
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                } catch (e) {
+                  // Fallback: use the already-fetched URL directly
+                  window.open(url, '_blank');
+                }
+              })();
+            } else {
+              // Other platforms (TikTok, Instagram Reels, Shorts): Blob fetch technique
+              (async () => {
+                try {
+                  const res = await fetch(url);
+                  const blob = await res.blob();
+                  const objectUrl = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = objectUrl;
+                  a.download = 'video.mp4';
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                  URL.revokeObjectURL(objectUrl);
+                } catch (e) {
+                  // Fallback: if blob fetch fails (CORS), open the URL directly
+                  window.open(url, '_blank');
+                }
+              })();
+            }
           });
         });
       }
@@ -1118,6 +1187,9 @@
       urlInput.focus();
       return;
     }
+
+    // Store the submitted URL so quality buttons can build custom payloads
+    currentUserUrl = userUrl;
 
     // Hide any previous error and show loading state
     hideError();
