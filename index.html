@@ -945,13 +945,16 @@
               // Build the appropriate payload
               let payload;
               if (quality === 'mp3') {
-                // Global MP3/Audio: request audio-only for ANY platform
-                payload = { url: currentUserUrl, downloadMode: 'audio' };
+                // Global MP3/Audio: request audio-only for ANY platform.
+                // For YouTube Long Videos, force server proxy to avoid CDN IP-binding 0-byte downloads.
+                payload = isYTLong
+                  ? { url: currentUserUrl, downloadMode: 'audio', alwaysProxy: true }
+                  : { url: currentUserUrl, downloadMode: 'audio' };
               } else {
-                // YouTube Long Video: use the format's mode (mute/auto)
+                // YouTube Long Video: use the format's mode (mute/auto) + force server proxy
                 const fmt = allFormats.find(f => f.key === quality);
                 const mode = fmt ? fmt.mode : 'auto';
-                payload = { url: currentUserUrl, videoQuality: quality.replace('p', ''), downloadMode: mode };
+                payload = { url: currentUserUrl, videoQuality: quality.replace('p', ''), downloadMode: mode, alwaysProxy: true };
               }
 
               // Fetch the audio/video URL from the API with the custom payload
